@@ -333,7 +333,7 @@ export default function RestaurantReservation() {
                 </p>
                 <p className="text-sm mb-2 flex justify-between items-center text-tn_dark_field">
                   <span className="underline">Time:</span>{" "}
-                  <span>{convertTo12HourFormat(time)}</span>
+                  <span>{time}</span>
                 </p>
                 <p className="text-sm mb-2 flex justify-between items-center text-tn_dark_field">
                   <span className="underline">Number of People:</span>{" "}

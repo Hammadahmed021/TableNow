@@ -19,7 +19,7 @@ import {
   FaTripadvisor,
 } from "react-icons/fa";
 import { useSelector } from "react-redux";
-import { verifyUser } from "../utils/Api";
+import { getHotelByID, verifyUser } from "../utils/Api";
 
 export default function RestaurantDetail() {
   const { id } = useParams();
@@ -31,28 +31,47 @@ export default function RestaurantDetail() {
   const { register, handleSubmit, watch, resetField, setValue } = useForm();
   const [currentUser, setCurrentUser] = useState({});
   const userData = useSelector((state) => state.auth.userData);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   const selectedDate = watch("date");
   const selectedTime = watch("time");
   const selectedSeats = watch("seats");
 
   const user_id = currentUser?.id || userData?.user?.id;
-  const { data, loading, error, refetch } = useFetch("hotels", user_id);
+  // const { data, loading, error, refetch } = useFetch("hotels", user_id);
   const today = new Date().toISOString().split("T")[0];
 
   // Fetch and update card and related restaurants
   useEffect(() => {
-    if (!data) return;
+    const fetchHotelById = async (id) => {
+      try {
+        const response = await getHotelByID(id); // Fetch hotel data from API
+        const foundCard = response;
+        console.log(foundCard, "foundCard >>>>>>>>");
 
-    const foundCard = data.find((card) => card.id === parseInt(id, 10));
+        // Find the card with the matching id
+        // const foundCard = data.find((card) => card.id === parseInt(id, 10));
 
-    if (foundCard) {
-      setCard(foundCard);
+        if (foundCard) {
+          setCard(foundCard); // Set the card state with the found card data
+        } else {
+          setError("Hotel not found");
+        }
+      } catch (err) {
+        setError("Error fetching hotel data");
+      } finally {
+        setLoading(false);
+      }
+    };
 
+    // const foundCard = data.find((card) => card.id === parseInt(id, 10));
+
+    if (card) {
       // Extract kitchen names from the nested structure
       const foundKitchens = [];
 
-      foundCard.calendars?.forEach((calendar) => {
+      card.calendars?.forEach((calendar) => {
         calendar.menus?.forEach((menu) => {
           menu.kitchens?.forEach((kitchen) => {
             if (kitchen.name) {
@@ -81,8 +100,9 @@ export default function RestaurantDetail() {
 
     // Fetch user data
     const fetchUserData = async () => {
+      const token = localStorage.getItem("signToken");
       try {
-        const response = await verifyUser();
+        const response = await verifyUser(token);
         const data = await response.data;
         setCurrentUser(data);
       } catch (error) {
@@ -90,7 +110,8 @@ export default function RestaurantDetail() {
       }
     };
     fetchUserData();
-  }, [data, id]);
+    fetchHotelById(id);
+  }, [id]);
 
   // Get current time in 24-hour format
   const getCurrentTimeIn24HourFormat = () => {
@@ -110,20 +131,11 @@ export default function RestaurantDetail() {
 
       if (dateCalendar) {
         const times = dateCalendar.calendar_details
-          .map((detail) => {
-            // Ensure time format is HH:mm
-            const timeWithoutSeconds = detail.time.substring(0, 5); // Trim ":ss" if present
-            return {
-              name: timeWithoutSeconds,
-              id: timeWithoutSeconds,
-            };
-          })
-          .filter((time) => {
-            console.log("Comparing:", time.id, "with", currentTime);
-            return time.id > currentTime; // Exclude past times
-          });
-
-        console.log("Filtered Times:", times);
+          .map((detail) => ({
+            name: detail.time,
+            id: detail.time,
+          }))
+          .filter((time) => time.id >= currentTime);
 
         setAvailableTimes(times || []);
         resetField("time");
@@ -244,7 +256,7 @@ export default function RestaurantDetail() {
         <Gallery
           images={card.galleries?.map((gallery) => gallery.image) || [fallback]}
           address={card.address}
-          name={card.name}
+          restaurant_name={card.restaurant_name}
         />
       </div>
       <div className="container mx-auto p-4 mb-14">
@@ -476,7 +488,7 @@ export default function RestaurantDetail() {
                         label="Time"
                         options={availableTimes.map((time) => ({
                           ...time,
-                          name: convertTo12HourFormat(time.name), // Convert 24-hour format to 12-hour format for display
+                          name: time.name, // Convert 24-hour format to 12-hour format for display
                         }))}
                         {...register("time")}
                         onChange={(e) => {
@@ -556,13 +568,13 @@ export default function RestaurantDetail() {
                 Explore more restaurants with similar cuisine
               </p>
             </div>
-            <Button
+            {/* <Button
               children={"View All"}
               bgColor="transparent"
               className="border border-black h-min mt-1 hover:bg-tn_pink hover:text-white hover:border-tn_pink duration-200 sm:inline-block block sm:w-auto w-[90%] m-auto sm:m-0"
               textColor="text-black"
               onClick={() => alert("test")}
-            />
+            /> */}
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {relatedRestaurants.length > 0 ? (
@@ -570,7 +582,7 @@ export default function RestaurantDetail() {
                 <RelatedCard
                   key={index}
                   id={restaurant.id}
-                  title={restaurant.name}
+                  restaurant_name={restaurant.restaurant_name}
                   location={restaurant.address}
                   images={restaurant.galleries.map((gallery) => gallery.image)}
                   // is_favorite={restaurant.is_favorite}

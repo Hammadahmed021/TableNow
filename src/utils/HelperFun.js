@@ -5,6 +5,7 @@ export const transformData = (apiResponse) => {
   return apiResponse.map((item) => ({
     id: item?.id,
     title: item?.name,
+    restaurant_name: item?.restaurant_name,
     location: item?.address || "N/A",
     images:
       item?.galleries && item.galleries.length > 0
@@ -51,6 +52,7 @@ export const transformSingleImageData = (apiResponse) => {
   return data.map((item) => ({
     id: item?.id,
     title: item?.name || item?.title,
+    restaurant_name: item?.restaurant_name,
     location: item?.address || item?.location || "N/A",
     images:
       item?.galleries && item.galleries.length > 0

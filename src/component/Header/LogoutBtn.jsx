@@ -11,9 +11,16 @@ export default function LogoutBtn({ className }) {
   const navigate = useNavigate();
   const logoutHandler = async () => {
     try {
-      await signOut(); // Call Firebase signOut function
-      dispatch(logout()); // Dispatch your logout action
-      localStorage.removeItem("webToken");
+      // Check if the user has the signToken in localStorage
+      const signToken = localStorage.getItem("signToken");
+      if (signToken) {
+        await signOut(); // Call Firebase signOut function
+        dispatch(logout()); // Dispatch your logout action
+        window.location.href = "/"; // Reload the page
+      } else {
+        await signOut(); // Call Firebase signOut function
+        dispatch(logout()); // Dispatch your logout action
+      }
     } catch (error) {
       console.error("Logout failed:", error.message);
       // Handle logout failure if needed

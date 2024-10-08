@@ -37,7 +37,7 @@ export default function Signup() {
     }
 
     try {
-      const response = await dispatch(signupUser({ ...userData, recaptchaToken })).unwrap();
+      const response = await dispatch(signupUser({ ...userData })).unwrap();
       console.log("Signup response:", response);
       // Navigate to home or another page
       navigate("/"); // Adjust the navigation as needed
@@ -232,7 +232,7 @@ export default function Signup() {
             </p>
           </div>
           {errors.terms && (
-            <p className="text-red-500 text-xs mt-1">{errors.newsletter.message}</p>
+            <p className="text-red-500 text-xs mt-1">{errors.newsletter}</p>
           )}
         </div>
 

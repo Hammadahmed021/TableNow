@@ -104,6 +104,8 @@ export const fetchFilteredData = async (filters) => {
 
 export const fetchBookings = async (booking) => {
   const token = localStorage.getItem("webToken");
+  const tokenCheck = localStorage.getItem("signToken");
+  const authToken = tokenCheck || token
 
   try {
     const response = await axios.post(
@@ -111,7 +113,7 @@ export const fetchBookings = async (booking) => {
       booking,
       {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${authToken}`,
           "Content-Type": "application/json",
         },
       }
@@ -160,6 +162,8 @@ export const getPayment = async (paymentData) => {
 // Function to show all user bookings
 export const getUserBookings = async (params) => {
   const token = localStorage.getItem("webToken");
+  const tokenCheck = localStorage.getItem("signToken");
+  const authToken = token || tokenCheck  
 
   try {
     const { data } = await axios.get(`${BASE_URL}getUserBookings`, {
@@ -169,7 +173,7 @@ export const getUserBookings = async (params) => {
       },
 
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${authToken}`,
         "Content-Type": "application/json",
       },
     });
@@ -182,6 +186,8 @@ export const getUserBookings = async (params) => {
 // Function to delete user booking
 export const deleteUserBooking = async (booking_id) => {
   const token = localStorage.getItem("webToken");
+  const tokenCheck = localStorage.getItem("signToken");
+  const authToken = token || tokenCheck 
 
   try {
     const { data } = await axios.put(
@@ -193,7 +199,7 @@ export const deleteUserBooking = async (booking_id) => {
           api_key: API_KEY,
         },
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${authToken}`,
           "Content-Type": "application/json",
         },
       }
@@ -207,6 +213,8 @@ export const deleteUserBooking = async (booking_id) => {
 // Function to delete all user bookings
 export const deleteAllUserBookings = async () => {
   const token = localStorage.getItem("webToken");
+  const tokenCheck = localStorage.getItem("signToken");
+  const authToken = token || tokenCheck 
 
   try {
     const { data } = await axios.put(
@@ -218,7 +226,7 @@ export const deleteAllUserBookings = async () => {
           api_key: API_KEY,
         },
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${authToken}`,
           "Content-Type": "application/json",
         },
       }
@@ -232,6 +240,8 @@ export const deleteAllUserBookings = async () => {
 // Function to update user profile
 export const updateUserProfile = async (userData) => {
   const token = localStorage.getItem("webToken");
+  const tokenCheck = localStorage.getItem("signToken");
+  const authToken = token || tokenCheck 
 
   const { name, phone, profile_image, user_id } = userData;
   console.log(userData, "userData api");
@@ -256,7 +266,7 @@ export const updateUserProfile = async (userData) => {
         api_key: API_KEY,
       },
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${authToken}`,
         "Content-Type": "multipart/form-data",
       },
     });
@@ -269,26 +279,46 @@ export const updateUserProfile = async (userData) => {
   }
 };
 
-// Function to verify if user is logged In or not
-export const verifyUser = async () => {
-  const token = localStorage.getItem("webToken");
-
+export const verifyToken = async (Btoken) => {
+  console.log(Btoken, "Btoken api");
   try {
-    const data = await axios.get(`${BASE_URL}verify`, {
-      params: {
-        api_key: API_KEY,
-      },
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "multipart/form-data",
-      },
-    });
-    console.log(data.data, "data for user profile");
+    const data = await axios.get(`${BASE_URL}verify-token/${Btoken}`, {});
+    localStorage.setItem("signToken", data.data.token);
+    // Retrieve the token from localStorage
 
     return data;
   } catch (error) {
     console.log("Error in updating user profile: ", error);
     throw new Error("Error in updating user profile");
+  }
+};
+
+// Function to verify if user is logged In or not
+export const verifyUser = async (token) => {
+  const tokenCheck = localStorage.getItem("signToken");
+  const tokenCheck2 = localStorage.getItem("webToken");
+  const authToken = token || tokenCheck || tokenCheck2;
+  console.log(authToken, "authToken");
+  if (authToken) {
+    try {
+      const data = await axios.get(`${BASE_URL}verify`, {
+        params: {
+          api_key: API_KEY,
+        },
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+          "Content-Type": "application/json",
+        },
+      });
+      console.log(data.data, "data for user profile");
+
+      return data;
+    } catch (error) {
+      console.log("Error in updating user profile: ", error);
+      throw new Error("Error in updating user profile");
+    }
+  } else {
+    console.log("unable to get  token");
   }
 };
 
@@ -332,6 +362,8 @@ export const getUserFromGmailSignup = async (userData) => {
 /* Favorites */
 export const addFavorite = async (hotel_id) => {
   const token = localStorage.getItem("webToken");
+  const tokenCheck = localStorage.getItem("signToken");
+  const authToken = token || tokenCheck
 
   try {
     const response = await axios.post(
@@ -339,7 +371,7 @@ export const addFavorite = async (hotel_id) => {
       { hotel_id },
       {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${authToken}`,
           "Content-Type": "multipart/form-data",
         },
       }
@@ -354,11 +386,14 @@ export const addFavorite = async (hotel_id) => {
 
 export const showFavorite = async () => {
   const token = localStorage.getItem("webToken");
+  const tokenCheck = localStorage.getItem("signToken");
+  const authToken = token || tokenCheck
+
 
   try {
     const response = await axios.get(`${BASE_URL}user-favorites`, {
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${authToken}`,
         "Content-Type": "multipart/form-data",
       },
     });
@@ -373,11 +408,13 @@ export const showFavorite = async () => {
 /* Rate */
 export const giveRateToHotel = async (rateData) => {
   const token = localStorage.getItem("webToken");
+  const tokenCheck = localStorage.getItem("signToken");
+  const authToken = token || tokenCheck
   const { table_booking_id, hotel_id, user_id, rating, review } = rateData;
   try {
     const response = await axios.post(`${BASE_URL}rate`, rateData, {
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${authToken}`,
         "Content-Type": "multipart/form-data",
       },
     });
@@ -396,6 +433,14 @@ export const sendFCMToken = async (fcm_token) => {
     throw new Error(error.message || "unable to find filters");
   }
 };
+export const getHotelByID = async (id) => {
+  try {
+    const response = await axios.get(`${BASE_URL}hotel/${id}`);
+    return response.data;
+  } catch (error) {
+    throw new Error(error | "unable to fetch hotel by id");
+  }
+};
 
 // Function to show near by hotels if user allow location
 export const fetchUserNearByRestaurants = async ({ payload }) => {
@@ -406,7 +451,7 @@ export const fetchUserNearByRestaurants = async ({ payload }) => {
       id,
       latitude,
       longitude,
-      page
+      page,
     });
     console.log(response, "nearby restaurant");
     return response.data;
@@ -421,7 +466,9 @@ export const sendNewsletter = async (newsEmail) => {
   const email = newsEmail.email;
   console.log(newsEmail, "email api newsletter");
   try {
-    const response = await axios.get(`${BASE_URL}subscribe-newsletter/${email}`);
+    const response = await axios.get(
+      `${BASE_URL}subscribe-newsletter/${email}`
+    );
     return response.data;
   } catch (error) {
     throw new Error(error.message || "unale to send newsletter");

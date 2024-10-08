@@ -110,7 +110,15 @@ const Filter = ({ onFilterChange }) => {
   
 
   const handleSearch = () => {
-    navigate("/listing", { state: { filters: selectedOptions } });
+    const filters = {
+      kitchens: selectedOptions.kitchens.includes("all") ? [] : selectedOptions.kitchens,
+      facilities: selectedOptions.facilities.includes("all") ? [] : selectedOptions.facilities,
+      areas: selectedOptions.areas.includes("all") ? [] : selectedOptions.areas,
+      person: selectedOptions.person,
+      startTime: selectedOptions.startTime,
+      endTime: selectedOptions.endTime,
+    };
+    navigate("/listing", { state: { filters } });
   };
 
   if (loading)
@@ -120,30 +128,48 @@ const Filter = ({ onFilterChange }) => {
       </p>
     );
 
-  const personOptions = [
-    { id: 1, name: "1" },
-    { id: 2, name: "2" },
-    { id: 3, name: "3" },
-    { id: 4, name: "4" },
-    { id: 5, name: "5" },
-    { id: 6, name: "6" },
-    { id: 7, name: "7" },
-    { id: 8, name: "8" },
-  ];
+    const personOptions = [
+      { id: 0, name: "Any Person" }, // First option for "Any Person"
+      { id: 1, name: "1" },
+      { id: 2, name: "2" },
+      { id: 3, name: "3" },
+      { id: 4, name: "4" },
+      { id: 5, name: "5" },
+      { id: 6, name: "6" },
+      { id: 7, name: "7" },
+      { id: 8, name: "8" },
+    ];
 
-  const generateTimeOptionsWithAMPM = () => {
-    const options = [];
+  // const generateTimeOptionsWithAMPM = () => {
+  //   const options = [];
   
-    const formatTime = (hours, minutes) => {
-      const period = hours >= 12 ? "PM" : "AM";
-      const adjustedHours = hours % 12 || 12; // Convert 24-hour time to 12-hour time
-      const displayTime = `${adjustedHours}:${minutes.toString().padStart(2, "0")} ${period}`;
-      const valueTime = `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:00`;
-      return {
-        id: valueTime,
-        name: displayTime,
-      };
-    };
+  //   const formatTime = (hours, minutes) => {
+  //     const period = hours >= 12 ? "PM" : "AM";
+  //     const adjustedHours = hours % 12 || 12; // Convert 24-hour time to 12-hour time
+  //     const displayTime = `${adjustedHours}:${minutes.toString().padStart(2, "0")} ${period}`;
+  //     const valueTime = `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:00`;
+  //     return {
+  //       id: valueTime,
+  //       name: displayTime,
+  //     };
+  //   };
+  
+  //   // Add --:-- as the first option
+  //   options.push({
+  //     id: "",
+  //     name: "--:--",
+  //   });
+  
+  //   for (let hour = 0; hour < 24; hour++) {
+  //     for (let minute = 0; minute < 60; minute += 15) {
+  //       options.push(formatTime(hour, minute));
+  //     }
+  //   }
+  
+  //   return options;
+  // };
+  const generateTimeOptionsIn24HourFormat = () => {
+    const options = [];
   
     // Add --:-- as the first option
     options.push({
@@ -151,17 +177,25 @@ const Filter = ({ onFilterChange }) => {
       name: "--:--",
     });
   
+    // Generate time options in 24-hour format
     for (let hour = 0; hour < 24; hour++) {
       for (let minute = 0; minute < 60; minute += 15) {
-        options.push(formatTime(hour, minute));
+        const displayTime = `${hour.toString().padStart(2, "0")}:${minute.toString().padStart(2, "0")}`; // 24-hour format
+        const valueTime = `${hour.toString().padStart(2, "0")}:${minute.toString().padStart(2, "0")}:00`;
+        options.push({
+          id: valueTime,
+          name: displayTime,
+        });
       }
     }
   
     return options;
   };
   
+  
+  
 
-  const timeOptions = generateTimeOptionsWithAMPM();
+  const timeOptions = generateTimeOptionsIn24HourFormat();
 
   const addAllOption = (options, label) => [
     { id: "all", name: label },
@@ -197,11 +231,11 @@ const Filter = ({ onFilterChange }) => {
           value={selectedOptions.person}
           onChange={(e) => handleFilterChange(e, "person")}
           className="border-r-2 pr-1 mx-5"
-          // options={personOptions}
-          options={personOptions.map(option => ({
-            ...option,
-            name: `Any ${option.name}`, // Prepend "Any" to the name only for display
-          }))}
+          options={personOptions}
+          // options={personOptions.map(option => ({
+          //   ...option,
+          //   name: `${option.name}`, // Prepend "Any" to the name only for display
+          // }))}
         />
         <SelectOption 
           label="Start Time"

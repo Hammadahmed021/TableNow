@@ -11,6 +11,7 @@ import { getFCMToken } from "../service";
 import { setNotification } from "./notificationSlice";
 import { PushNotifications } from "@capacitor/push-notifications";
 import { Capacitor } from "@capacitor/core";
+import { showInfoToast } from "../utils/Toast";
 
 const initialState = {
   status: false,
@@ -62,6 +63,7 @@ const requestPushNotificationPermission = async () => {
 export const signupUser = createAsyncThunk(
   "auth/signupUser",
   async (userData, { rejectWithValue }) => {
+    let user;
     try {
       const { email, password, fname, phone } = userData;
       const userCredential = await createUserWithEmailAndPassword(
@@ -70,7 +72,7 @@ export const signupUser = createAsyncThunk(
         password
       );
 
-      const user = userCredential.user;
+      user = userCredential.user;
       const token = await getIdToken(user);
 
       const signupData = {
@@ -80,9 +82,10 @@ export const signupUser = createAsyncThunk(
       };
       // if(user){}
       const response = await Signup(signupData);
+      showInfoToast('Verify your account. An email is sent to your email.')
 
       // Store token in localStorage
-      localStorage.setItem("webToken", response?.token);
+      // localStorage.setItem("webToken", response?.token);
 
       return {
         uid: user.uid,
@@ -92,6 +95,13 @@ export const signupUser = createAsyncThunk(
         ...response,
       };
     } catch (error) {
+      if(user){
+        try {
+          user.delete()
+        } catch (error) {
+          throw new Error(error || "unable to del user from firebase")
+        }
+      }
       return rejectWithValue(error.message);
     }
   }
@@ -156,6 +166,7 @@ const authSlice = createSlice({
       state.error = null;
       // remove token in localStorage
       localStorage.removeItem("webToken");
+      localStorage.removeItem("signToken");
     },
     updateUserData: (state, action) => {
       state.userData = {

@@ -27,7 +27,7 @@ const MenuCard = ({
           <div className="sm:w-1/2 w-3/12 overflow-hidden rounded-xl">
             {!imgError ? (
               <img
-                className="w-full h-full object-cover"
+                className="w-full h-[300px] object-cover"
                 src={image}
                 alt={name}
                 onError={handleError}

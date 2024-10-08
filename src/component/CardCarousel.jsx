@@ -24,6 +24,7 @@ const SkeletonLoader = () => {
 const CardCarousel = ({
   id,
   title,
+  restaurant_name,
   address,
   images,
   rating,
@@ -50,6 +51,7 @@ const CardCarousel = ({
         setData({
           id,
           title,
+          restaurant_name,
           address,
           images,
           rating,
@@ -69,6 +71,7 @@ const CardCarousel = ({
   }, [
     id,
     title,
+    restaurant_name,
     address,
     images,
     rating,
@@ -80,8 +83,11 @@ const CardCarousel = ({
     longitude,
     latitude
   ]);
-
-  const isLoggedIn = useSelector((state) => state.auth.userData); 
+  
+  const isLogIn = useSelector((state) => state.auth.userData); 
+  const token = localStorage.getItem("signToken")
+  const isLoggedIn = token || isLogIn
+  
 
   useEffect(() => {
     setInWishlist(is_favorite);
@@ -206,7 +212,7 @@ const CardCarousel = ({
             style={{ maxWidth: "100%" }}
           >
             <Link to={`/restaurant/${data.id}`} className="hover:opacity-80">
-              {data.title}
+              {data.restaurant_name}
             </Link>
           </div>
           {/* <p className="text-black text-sm font-light">{data.type} </p> */}

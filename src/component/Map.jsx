@@ -52,7 +52,7 @@ const MapComponent = ({ data, requestUserLocation }) => {
     .map((item) => ({
       lat: parseFloat(item.latitude),
       lng: parseFloat(item.longitude),
-      title: item.title,
+      restaurant_name: item.restaurant_name,
       location: item.location,
       id: item.id,
       images: item.images || fallback,
@@ -114,9 +114,9 @@ const MapComponent = ({ data, requestUserLocation }) => {
     }
   }, [map, validCoordinates, userLocation, showNearby, nearbyRestaurants]);
 
-  const handleMarkerClick = useCallback((lat, lng, title, location, id) => {
+  const handleMarkerClick = useCallback((lat, lng, restaurant_name, location, id) => {
     setCenter({ lat, lng });
-    setSelectedMarker({ lat, lng, title, location, id });
+    setSelectedMarker({ lat, lng, restaurant_name, location, id });
   }, []);
 
   if (loadError) return <div>Error loading maps</div>;
@@ -140,12 +140,12 @@ const MapComponent = ({ data, requestUserLocation }) => {
             <Marker
               key={index}
               position={{ lat: item.lat, lng: item.lng }}
-              title={item.title}
+              restaurant_name={item.restaurant_name}
               onClick={() =>
                 handleMarkerClick(
                   item.lat,
                   item.lng,
-                  item.title,
+                  item.restaurant_name,
                   item.location,
                   item.id
                 )
@@ -170,11 +170,11 @@ const MapComponent = ({ data, requestUserLocation }) => {
                     <div className="">
                       <img
                         src={item.images}
-                        alt={item.title}
+                        alt={item.restaurant_name}
                         className="h-12 w-36 object-cover rounded-md"
                       />
                       <h4 className="text-xs font-semibold my-1">
-                        {selectedMarker.title}
+                        {selectedMarker.restaurant_name}
                       </h4>
                       <p className="text-xs text-gray-700">
                         {selectedMarker.location}
@@ -195,7 +195,7 @@ const MapComponent = ({ data, requestUserLocation }) => {
                 handleMarkerClick(
                   item.lat,
                   item.lng,
-                  item.title,
+                  item.restaurant_name,
                   item.location,
                   item.id
                 )
@@ -207,18 +207,18 @@ const MapComponent = ({ data, requestUserLocation }) => {
                 borderWidth: '1px',
                 borderRadius: "5px",
                 borderColor:
-                  selectedMarker && item.title === selectedMarker.title
+                  selectedMarker && item.restaurant_name === selectedMarker.restaurant_name
                     ? "#fff"
                     : "#e0e0e0",
                 background:
-                  selectedMarker && item.title === selectedMarker.title
+                  selectedMarker && item.restaurant_name === selectedMarker.restaurant_name
                     ? "#efefef"
                     : "#fff",
               }}
             >
               <span className="flex items-center justify-between space-x-2">
                 <p className="text-base font-semibold capitalize text-tn_dark">
-                  {item.title}
+                  {item.restaurant_name}
                 </p>
                 <p className="text-sm text-tn_text_grey">
                   Ratings:{" "}

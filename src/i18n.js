@@ -11,7 +11,7 @@ i18n.use(initReactI18next).use(LanguageDetector).init({
     resources:{
         en: {
             translation: {
-                Signup : 'Signup',           
+                Signup : 'Signup',        
             }
         },
         de: {

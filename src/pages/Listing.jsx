@@ -203,25 +203,41 @@ const Listing = () => {
   const transformedData = transformSingleImageData(filteredData);
   console.log(transformedData, "transformedData");
 
-  const generateTimeOptionsWithAMPM = () => {
+  // const generateTimeOptionsWithAMPM = () => {
+  //   const options = [];
+  //   for (let hour = 0; hour < 24; hour++) {
+  //     for (let minute = 0; minute < 60; minute += 15) {
+  //       const period = hour >= 12 ? "PM" : "AM";
+  //       const adjustedHours = hour % 12 || 12;
+  //       const displayTime = `${adjustedHours}:${minute
+  //         .toString()
+  //         .padStart(2, "0")} ${period}`;
+  //       const valueTime = `${hour.toString().padStart(2, "0")}:${minute
+  //         .toString()
+  //         .padStart(2, "0")}:00`;
+  //       options.push({ id: valueTime, name: displayTime });
+  //     }
+  //   }
+  //   return options;
+  // };
+
+  const generateTimeOptions24Hour  = () => {
     const options = [];
     for (let hour = 0; hour < 24; hour++) {
       for (let minute = 0; minute < 60; minute += 15) {
-        const period = hour >= 12 ? "PM" : "AM";
-        const adjustedHours = hour % 12 || 12;
-        const displayTime = `${adjustedHours}:${minute
+        const displayTime = `${hour.toString().padStart(2, "0")}:${minute
           .toString()
-          .padStart(2, "0")} ${period}`;
+          .padStart(2, "0")}`;
         const valueTime = `${hour.toString().padStart(2, "0")}:${minute
           .toString()
           .padStart(2, "0")}:00`;
         options.push({ id: valueTime, name: displayTime });
       }
     }
-    return options;
-  };
+    return options
+  }
 
-  const timeOptions = generateTimeOptionsWithAMPM();
+  const timeOptions = generateTimeOptions24Hour ();
 
   return (
     <>
@@ -354,7 +370,7 @@ const Listing = () => {
                         <CardCarousel
                           key={data.id}
                           id={data.id}
-                          title={data.title || data?.name}
+                          restaurant_name={data.restaurant_name}
                           address={data.location}
                           images={data.images}
                           rating={data.rating}
@@ -426,7 +442,7 @@ const Listing = () => {
                         <CardCarousel
                           key={data.id}
                           id={data.id}
-                          title={data.title}
+                          restaurant_name={data.restaurant_name}
                           address={data.location}
                           images={data.images}
                           rating={data.rating}

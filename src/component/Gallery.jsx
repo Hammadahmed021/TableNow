@@ -8,7 +8,7 @@ const SkeletonLoader = () => {
   );
 };
 
-const Gallery = ({ images, address, name, loading }) => {
+const Gallery = ({ images, address, restaurant_name, loading }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [photoIndex, setPhotoIndex] = useState(0);
   const [showAll, setShowAll] = useState(false);
@@ -29,7 +29,7 @@ const Gallery = ({ images, address, name, loading }) => {
       <div className="flex flex-wrap items-start justify-between mb-8 sm:mb-6">
         <div className="">
           <p className="text-gray-700 text-base text-start">{address}</p>
-          <h1 className="text-start text-3xl font-extrabold capitalize mb-4 sm:mb-0">{name}</h1>
+          <h1 className="text-start text-3xl font-extrabold capitalize mb-4 sm:mb-0">{restaurant_name}</h1>
         </div>
 
         <button

@@ -29,6 +29,9 @@ export default function Home() {
   const [currentUser, setCurrentUser] = useState({});
   const [userLocation, setUserLocation] = useState(null);
   const [nearByData, setNearByData] = useState([]);
+  const token = localStorage.getItem("signToken");  // Get token from localStorage
+  console.log(token, 'home tok');
+  
 
   const [filterValues, setFilterValues] = useState({
     kitchens: "",
@@ -42,6 +45,8 @@ export default function Home() {
     setFilterValues(selectedOptions);
   };
   const user_id = currentUser?.id || userData?.user?.id;
+  console.log(currentUser, 'currentUser');
+  
 
   const { data, loading, error, refetch } = useFetch("hotels", user_id);
   console.log(user_id, "data");
@@ -52,8 +57,9 @@ export default function Home() {
       refetch();
     }
     const fetchUserData = async () => {
+      const token = localStorage.getItem("signToken")
       try {
-        const response = await verifyUser();
+        const response = await verifyUser(token);
         const data = await response.data;
 
         setCurrentUser(data);
@@ -132,8 +138,8 @@ export default function Home() {
   
   const payload = {
     id: user_id,
-    latitude: userLocation?.longitude,
-    longitude: userLocation?.latitude,
+    latitude: userLocation?.latitude,
+    longitude: userLocation?.longitude,
     page, // Add 'home' or the page name in the payload
   };
   
@@ -284,7 +290,7 @@ export default function Home() {
                 <CardCarousel
                   key={data.id}
                   id={data.id}
-                  title={data.title}
+                  restaurant_name={data.restaurant_name}
                   address={data.location}
                   images={data.images}
                   rating={data.rating}
@@ -343,7 +349,7 @@ export default function Home() {
                     <CardCarousel
                       key={index}
                       id={data.id}
-                      title={data.title}
+                      restaurant_name={data.restaurant_name}
                       address={data.location}
                       images={data.images}
                       type={data.type}
@@ -421,7 +427,7 @@ export default function Home() {
                 <CardCarousel
                   key={data.id}
                   id={data.id}
-                  title={data.title}
+                  restaurant_name={data.restaurant_name}
                   address={data.location}
                   images={data.images}
                   rating={data.rating}
