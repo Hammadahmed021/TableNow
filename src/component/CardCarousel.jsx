@@ -195,7 +195,7 @@ const CardCarousel = ({
           <p className="text-white text-base">{data.address}</p>
           <div className="font-bold text-2xl mb-2 text-white ellipsis-2-lines">
             <Link to={`/restaurant/${data.id}`} className="hover:opacity-80">
-              {data.title}
+              {data.restaurant_name}
             </Link>
           </div>
         </div>

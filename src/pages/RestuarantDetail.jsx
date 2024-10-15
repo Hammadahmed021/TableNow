@@ -39,7 +39,7 @@ export default function RestaurantDetail() {
   const selectedSeats = watch("seats");
 
   const user_id = currentUser?.id || userData?.user?.id;
-  // const { data, loading, error, refetch } = useFetch("hotels", user_id);
+  const { data } = useFetch("hotels", user_id);
   const today = new Date().toISOString().split("T")[0];
 
   // Fetch and update card and related restaurants
@@ -82,18 +82,19 @@ export default function RestaurantDetail() {
       });
 
       // Filter restaurants that have matching kitchens and exclude the current one
-      const filteredRestaurants = data.filter(
+      const filteredRestaurants = data?.filter(
         (restaurant) =>
           restaurant.id !== parseInt(id, 10) &&
           restaurant.calendars?.some((calendar) =>
             calendar.menus?.some((menu) =>
               menu.kitchens?.some((kitchen) =>
-                foundKitchens.includes(kitchen.name)
+                foundKitchens.includes(kitchen.restaurant_name)
               )
             )
           )
       );
       setRelatedRestaurants(filteredRestaurants.slice(0, 4));
+      
     } else {
       setCard(null);
     }
@@ -113,6 +114,9 @@ export default function RestaurantDetail() {
     fetchHotelById(id);
   }, [id]);
 
+  console.log(relatedRestaurants, 'relatedRestaurants');
+
+
   // Get current time in 24-hour format
   const getCurrentTimeIn24HourFormat = () => {
     const date = new Date();
@@ -123,71 +127,76 @@ export default function RestaurantDetail() {
 
   const currentTime = getCurrentTimeIn24HourFormat();
 
-  useEffect(() => {
-    if (card?.calendars) {
-      const dateCalendar = card.calendars.find(
-        (calendar) => calendar.date === today
+  const isTimePastDayEnd = (time) => {
+    return time >= "23:59";
+  };
+
+ // Effect to update available times when the date or card changes
+ useEffect(() => {
+  if (card?.calendars) {
+    const dateCalendar = card.calendars.find(
+      (calendar) => calendar.date === today
+    );
+
+    if (dateCalendar) {
+      const times = dateCalendar.calendar_details
+        .map((detail) => ({
+          name: detail.time,
+          id: detail.time,
+        }))
+        .filter((time) => time.id >= currentTime && !isTimePastDayEnd(time.id)); // Filter out times past 11:59 PM
+
+      setAvailableTimes(times || []);
+      resetField("time");
+      resetField("seats");
+      setAvailableSeats([]);
+
+      if (times.length > 0) {
+        setValue("time", times[0].id); // Automatically select the first available time
+      }
+    } else {
+      setAvailableTimes([]);
+    }
+  }
+}, [card, resetField, setValue, today, currentTime]);
+
+// Update available seats based on selected time and booked seats
+useEffect(() => {
+  if (selectedTime && card?.calendars) {
+    const dateCalendar = card.calendars.find(
+      (calendar) => calendar.date === today
+    );
+
+    if (dateCalendar) {
+      const timeDetail = dateCalendar.calendar_details.find(
+        (detail) => detail.time === selectedTime
       );
 
-      if (dateCalendar) {
-        const times = dateCalendar.calendar_details
-          .map((detail) => ({
-            name: detail.time,
-            id: detail.time,
-          }))
-          .filter((time) => time.id >= currentTime);
+      if (timeDetail) {
+        const bookedSeats = timeDetail.bookedSeats || [];
 
-        setAvailableTimes(times || []);
-        resetField("time");
-        resetField("seats");
-        setAvailableSeats([]);
+        const seats = Array.from(
+          { length: timeDetail.seats },
+          (_, index) => index + 1
+        )
+          .filter((seat) => !bookedSeats.includes(seat))
+          .map((seat) => ({
+            name: seat,
+            label: seat,
+            id: seat,
+          }));
 
-        if (times.length > 0) {
-          setValue("time", times[0].id); // Automatically select first available time
+        setAvailableSeats(seats);
+
+        if (seats.length > 0) {
+          setValue("seats", seats[0].id); // Automatically select the first available seat
         }
       } else {
-        setAvailableTimes([]);
+        setAvailableSeats([]);
       }
     }
-  }, [card, resetField, setValue, today, currentTime]);
-
-  // Update available seats based on selected time and booked seats
-  useEffect(() => {
-    if (selectedTime && card?.calendars) {
-      const dateCalendar = card.calendars.find(
-        (calendar) => calendar.date === today
-      );
-
-      if (dateCalendar) {
-        const timeDetail = dateCalendar.calendar_details.find(
-          (detail) => detail.time === selectedTime
-        );
-
-        if (timeDetail) {
-          const bookedSeats = timeDetail.bookedSeats || [];
-
-          const seats = Array.from(
-            { length: timeDetail.seats },
-            (_, index) => index + 1
-          )
-            .filter((seat) => !bookedSeats.includes(seat))
-            .map((seat) => ({
-              name: seat,
-              label: seat,
-              id: seat,
-            }));
-
-          setAvailableSeats(seats);
-
-          if (seats.length > 0) {
-            setValue("seats", seats[0].id); // Automatically select first available seat
-          }
-        } else {
-          setAvailableSeats([]);
-        }
-      }
-    }
-  }, [selectedTime, card, setValue, today]);
+  }
+}, [selectedTime, card, setValue, today]);
 
   const onSubmit = (formData) => {
     const { date, time, seats } = formData;
@@ -266,8 +275,8 @@ export default function RestaurantDetail() {
             <div className="grid grid-cols-12 gap-4">
               <div className="col-span-12 md:col-span-6">
                 <h4 className="text-[17px] font-bold mb-1">About</h4>
-                <p className="text-sm pr-5 mb-6">
-                  {card.description || "No description available."}
+                <p className="text-sm pr-5 mb-6 overflow-y-scroll h-20 block">
+                  <span className="">{card.description || "No description available."}</span>
                 </p>
                 <h4 className="text-[17px] font-bold mb-1">Social links</h4>
                 <ul className="flex flex-col text-sm">
@@ -394,7 +403,7 @@ export default function RestaurantDetail() {
                 <p className="mb-6 text-sm">
                   {card.meals || "No meal information available."}
                 </p> */}
-                <h4 className="text-[17px] font-bold mb-1">Contact</h4>
+                <h4 className="text-[17px] font-bold mb-1">Contact 1</h4>
                 <p className="mb-6 text-sm">
                   {card.phone || "No contact information available"}
                 </p>

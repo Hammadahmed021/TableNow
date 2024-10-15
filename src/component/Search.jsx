@@ -15,7 +15,7 @@ const Search = ({ data, className }) => {
       return;
     }
     const filteredSuggestions = data.filter((item) =>
-      item.name.toLowerCase().includes(value.toLowerCase())
+      item.restaurant_name.toLowerCase().includes(value.toLowerCase())
     );
     setSuggestions(filteredSuggestions);
   };
@@ -53,7 +53,7 @@ const Search = ({ data, className }) => {
                 className="p-2 cursor-pointer hover:bg-gray-100"
                 onClick={() => navigateToCard(item.id)}
               >
-                {item.name}
+                {item.restaurant_name}
               </div>
             ))}
           </div>

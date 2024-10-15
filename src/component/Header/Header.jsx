@@ -21,12 +21,12 @@ const Header = ({ style }) => {
   const userData = useSelector((state) => state.auth.userData);
   const isDesktop = useMediaQuery("(max-width: 991px)");
   const [toggle, setToggle] = useState(false);  // Menu toggle state
-  const { data } = useFetch("hotels");
   const { t } = useTranslation();
   const location = useLocation();
   const token = localStorage.getItem("signToken");  // Get token from localStorage
   const isApp = Capacitor.isNativePlatform();
-
+  
+  const { data } = useFetch("hotels");
   // Fetch current user data based on the token
   const fetchCurrentUserData = async () => {
     if (token) {
@@ -86,6 +86,13 @@ const Header = ({ style }) => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+
+  const approvedData = Array.isArray(data)
+  ? data.filter((item) => item.is_approved && item.status === "active")
+  : [];
+
+  
+
   return (
     <header className="border-b-2 relative" style={style}>
       <div className="container mx-auto">
@@ -95,7 +102,7 @@ const Header = ({ style }) => {
               <Link to={"/"}>
                 <img src={Logo} alt="" className="w-64" />
               </Link>
-              <Search data={data} />
+              <Search data={approvedData} />
             </div>
             <ul className="flex ml-auto items-center">
               <LanguageSelector />
@@ -107,7 +114,7 @@ const Header = ({ style }) => {
                       <img
                         src={
                           currentUser?.profile_image ||
-                          userData?.profile_image?.name ||
+                          userData?.user?.profile_image ||
                           fallback
                         }
                         alt="user profile"

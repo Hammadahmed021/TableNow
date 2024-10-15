@@ -149,6 +149,8 @@ export default function Home() {
     try {
       const response = await fetchUserNearByRestaurants({ payload });
       const data = await response;
+      console.log(data, 'data nearby');
+      
       const nearbyData = data ? transformData(data) : [];
       const approveNearbyData = nearbyData.filter(
         (item) => item.is_approved && item.status === "active"
@@ -343,9 +345,9 @@ export default function Home() {
             <>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-0">
                 {approvedData
-                  .filter((data) => data.is_featured == true)
-                  .slice(0, visibleFeatureCards)
-                  .map((data, index) => (
+                  ?.filter((data) => data.is_featured == true)
+                  ?.slice(0, visibleFeatureCards)
+                  ?.map((data, index) => (
                     <CardCarousel
                       key={index}
                       id={data.id}

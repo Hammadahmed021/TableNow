@@ -14,9 +14,9 @@ i18n.use(initReactI18next).use(LanguageDetector).init({
                 Signup : 'Signup',        
             }
         },
-        de: {
+        da: {
             translation: {
-                Signup : 'Aanmelden',
+                Signup : 'Tilmeld dig',
             }
         },
     },

@@ -252,21 +252,22 @@ const Profile = () => {
       console.log(updatedUserData, "updatedUserData");
 
       // Update user profile on the server
-      await updateUserProfile(updatedUserData);
+      const response = await updateUserProfile(updatedUserData);
+      if (response.status == 200 || response.status == 201) {
+        // Update Redux state with the new user data
+        dispatch(updateUserData(updatedUserData));
 
-      // Update Redux state with the new user data
-      dispatch(updateUserData(updatedUserData));
-
-      // Optionally, refetch the user data after a successful update
-      fetchUserData();
+        // Optionally, refetch the user data after a successful update
+        fetchUserData();
+        setSuccessMessage("Profile updated successfully!");
+        setTimeout(() => {
+          setSuccessMessage(""); // Clear the success message after 5 seconds
+        }, 3000);
+      }
     } catch (error) {
       console.error("Error saving profile:", error);
     } finally {
       setIsSigning(false);
-      setSuccessMessage("Profile updated successfully!");
-      setTimeout(() => {
-        setSuccessMessage(""); // Clear the success message after 5 seconds
-      }, 3000);
     }
   };
 
@@ -353,7 +354,9 @@ const Profile = () => {
   const handleNameKeyPress = (e) => {
     const charCode = e.keyCode || e.which;
     const charStr = String.fromCharCode(charCode);
-    if (!/^[a-zA-Z]+$/.test(charStr)) {
+
+    // Allow alphabets and spaces only
+    if (!/^[a-zA-Z ]+$/.test(charStr)) {
       e.preventDefault();
     }
   };
@@ -449,22 +452,30 @@ const Profile = () => {
                   placeholder="Enter your name"
                   className="mb-6"
                 />
-                <Input
-                  label="Phone"
-                  type="tel"
-                  maxLength={15} // Restrict length to 15 digits
-                  onKeyPress={handlePhoneKeyPress} // Prevent alphabets
-                  {...register("phone", {
-                    validate: {
-                      lengthCheck: (value) =>
-                        (value.length >= 11 && value.length <= 15) ||
-                        "Phone number must be between 11 and 15 digits",
-                    },
-                  })}
-                  placeholder="Enter your phone number"
-                  className="mb-6 sm:mb-0"
-                />
+                <span className="w-full">
+                  <Input
+                    label="Phone"
+                    type="tel"
+                    maxLength={15} // Restrict length to 15 digits
+                    onKeyPress={handlePhoneKeyPress} // Prevent alphabets
+                    {...register("phone", {
+                      validate: {
+                        lengthCheck: (value) =>
+                          (value.length >= 11 && value.length <= 15) ||
+                          "Phone number must be between 11 and 15 digits",
+                      },
+                    })}
+                    placeholder="Enter your phone number"
+                    className="mb-6 sm:mb-0"
+                  />
+                  {errors.phone && (
+                    <p className="text-red-500 text-xs mt-1 mb-3">
+                      {errors.phone.message}
+                    </p>
+                  )}
+                </span>
               </span>
+
               {!isGmailUser && (
                 <span className="mb-6 block">
                   <span className="flex-wrap flex space-x-0 sm:space-x-2 sm:flex-nowrap">
@@ -557,7 +568,7 @@ const Profile = () => {
                 <div className="ml-2">
                   <p>{booking?.hotel?.type}</p>
                   <p className="font-bold text-xl capitalize">
-                    {booking?.hotel?.name}
+                    {booking?.hotel?.restaurant_name}
                   </p>
                 </div>
               </div>
@@ -567,8 +578,7 @@ const Profile = () => {
                   <span className="underline mr-2">Date </span> {booking?.date}
                 </p>
                 <p className="text-sm mb-2 flex justify-between items-center text-tn_dark_field">
-                  <span className="underline mr-2">Time</span>{" "}
-                  {convertTo12HourFormat(booking?.time)}
+                  <span className="underline mr-2">Time</span> {booking?.time}
                 </p>
               </div>
               <div>

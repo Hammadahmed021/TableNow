@@ -1,4 +1,4 @@
 export const LANGUAGES = [
     { label: "English", code: "en" },
-    { label: "Dutch", code: "de" },
+    { label: "Danish", code: "da" },
   ];

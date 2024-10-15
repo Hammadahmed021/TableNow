@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { useDispatch } from "react-redux";
 import { signupUser } from "../store/authSlice";
 import { Input, Button } from "../component";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import ReCAPTCHA from "react-google-recaptcha";
 import { Capacitor } from "@capacitor/core";
 
@@ -211,7 +211,7 @@ export default function Signup() {
               })}
             />
             <p className="text-sm">
-              I agree to all the Terms and Privacy Policies
+              I agree to all the <Link className="underline" to={'/terms-of-service'}>terms</Link> and <Link className="underline"  to={'/privacy-policy'}>privacy</Link> policies.
             </p>
           </div>
           {errors.terms && (
