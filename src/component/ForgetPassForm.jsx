@@ -17,10 +17,10 @@ export default function ForgotPassForm() {
     setIsSigning(true);
     setError(null);
     setSuccessMessage(null);
-    console.log(data, 'data');
+    console.log(data, "data");
 
     const response = await resetPassword(data.email);
-    console.log(response, 'response');
+    console.log(response, "response");
 
     if (response.success) {
       setSuccessMessage(response.message);
@@ -55,18 +55,21 @@ export default function ForgotPassForm() {
                 {errors.email.message}
               </p>
             )}
+            {error && (
+              <p className="text-start text-red-500 text-sm py-1">{error}</p>
+            )}
+            {successMessage && (
+              <p className="text-start text-green-500 text-sm py-1">
+                {successMessage}
+              </p>
+            )}
           </span>
-          {error && (
-            <p className="text-start text-red-500 text-sm pb-2">{error}</p>
-          )}
-          {successMessage && (
-            <p className="text-start text-green-500 text-sm pb-2">
-              {successMessage}
-            </p>
-          )}
+
           <Button
             type="submit"
-            className={`w-full ${isSigning ? "opacity-70 cursor-not-allowed" : ""}`}
+            className={`w-full ${
+              isSigning ? "opacity-70 cursor-not-allowed" : ""
+            }`}
             disabled={isSigning}
           >
             {isSigning ? "Submitting..." : "Submit"}

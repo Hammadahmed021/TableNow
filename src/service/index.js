@@ -75,11 +75,15 @@ export const signOut = async () => {
 
 export const resetPassword = async (email) => {
   console.log(email, "before email");
+  const actionCodeSettings = {
+    url: 'https://tablenow.dk/login',  // Your login page URL
+    handleCodeInApp: false // Set to true if handling reset in the app
+};
 
   if (email) {
     console.log(email, "after email");
     try {
-      await sendPasswordResetEmail(auth, email);
+      await sendPasswordResetEmail(auth, email, actionCodeSettings);
       console.log(
         "Password reset email sent to the given email address successfully"
       );

@@ -160,13 +160,13 @@ export default function RestaurantReservation() {
         setIsSigning(false);
         showSuccessToast("Booking created successfully");
       }
+      // Use replace to prevent navigation back
       if (user?.uid || Id) {
-        navigate("/profile");
+        navigate("/profile", { replace: true }); // Redirect to profile page
       } else {
         navigate("/thankyou", {
-          state: {
-            restaurant, // Make sure restaurant is correctly defined
-          },
+          state: { restaurant }, // Make sure restaurant is defined
+          replace: true, // This will replace the current entry in the history stack
         });
       }
     }
@@ -332,8 +332,7 @@ export default function RestaurantReservation() {
                   <span className="underline">Date:</span> <span>{date}</span>
                 </p>
                 <p className="text-sm mb-2 flex justify-between items-center text-tn_dark_field">
-                  <span className="underline">Time:</span>{" "}
-                  <span>{time}</span>
+                  <span className="underline">Time:</span> <span>{time}</span>
                 </p>
                 <p className="text-sm mb-2 flex justify-between items-center text-tn_dark_field">
                   <span className="underline">Number of People:</span>{" "}

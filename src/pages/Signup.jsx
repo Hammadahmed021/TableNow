@@ -56,7 +56,7 @@ const Signup = () => {
       }
     } catch (error) {
       console.error("Login failed:", error.message);
-    }
+    } 
   };
 
   return (
@@ -67,7 +67,7 @@ const Signup = () => {
           className={` ${
             isApp
               ? `w-fit absolute top-8 left-4`
-              : `w-fit relative sm:absolute top-4 left-4   mb-8 sm:mb-0`
+              : `w-fit relative sm:absolute top-4 left-4 mb-8 sm:mb-0`
           }`}
         />
       </Link>
@@ -78,7 +78,7 @@ const Signup = () => {
             Signup
           </h2>
           <p className="text-tn_text_grey mt-2 mb-8">
-            Let’s get you all st up so you can access your personal account.
+            Let’s get you all setup so you can access your personal account.
           </p>
           <SignupComponent />
           <p className="text-tn_dark_field text-sm font-bold text-center py-3">

@@ -9,6 +9,7 @@ import { signupUser, login as loginFunc } from "../store/authSlice";
 import { auth } from "../service/firebase";
 import { getUserFromGmailLogin } from "../utils/Api";
 import { Capacitor } from "@capacitor/core";
+import useMediaQuery from "../hooks/useQuery";
 
 // const images = [login, signup];
 
@@ -18,6 +19,8 @@ const Login = () => {
   const navigate = useNavigate();
   const authStatus = useSelector((state) => state.auth.status);
   const userData = useSelector((state) => state.auth.userData);
+  const isDesktop = useMediaQuery("(max-width: 1550px)");
+
 
   const isApp = Capacitor.getPlatform() === "android" || Capacitor.getPlatform() === "ios";
 
@@ -70,9 +73,9 @@ const Login = () => {
   return (
     <div className="container mx-auto flex sm:items-center justify-center min-h-screen p-0 sm:p-2 relative flex-col sm:flex-col items-stretch">
       <Link to={"/"}>
-        <img src={Logo} className="w-fit absolute top-8 left-4" />
+        <img src={Logo} className="w-fit relative sm:absolute top-4 left-4 mb-8 sm:mb-0" />
       </Link>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+      <div className={`${isDesktop && 'mt-12'} grid grid-cols-1 md:grid-cols-2 gap-12 items-center`}>
         {/* Left Column: Login Form */}
         <div className="px-4 sm:px-4">
           <h2 className="text-3xl w-full text-black sm:text-4xl md:text-5xl font-extrabold">

@@ -43,11 +43,12 @@ export const dataForFilter = async (url) => {
 
 export const Signup = async (userData) => {
   try {
-    const { email, fname, password } = userData;
+    const { email, fname, password, phone } = userData;
     const payload = {
       name: fname,
       email,
       password,
+      phone,
       type: "user",
     };
 

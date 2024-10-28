@@ -40,7 +40,8 @@ export default function RestaurantDetail() {
 
   const user_id = currentUser?.id || userData?.user?.id;
   const { data } = useFetch("hotels", user_id);
-  const today = new Date().toISOString().split("T")[0];
+  const today = new Date().toLocaleDateString('en-CA'); // 'en-CA' ensures it uses the 'YYYY-MM-DD' format
+
 
   // Fetch and update card and related restaurants
   useEffect(() => {
@@ -547,7 +548,7 @@ useEffect(() => {
                   </>
                 ) : (
                   <p className="text-sm text-red-600">
-                    No times available for the selected date.
+                    No time available for the selected date.
                   </p>
                 )}
               </form>

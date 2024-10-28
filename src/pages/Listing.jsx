@@ -221,7 +221,7 @@ const Listing = () => {
   //   return options;
   // };
 
-  const generateTimeOptions24Hour  = () => {
+  const generateTimeOptions24Hour = () => {
     const options = [];
     for (let hour = 0; hour < 24; hour++) {
       for (let minute = 0; minute < 60; minute += 15) {
@@ -234,10 +234,10 @@ const Listing = () => {
         options.push({ id: valueTime, name: displayTime });
       }
     }
-    return options
-  }
+    return options;
+  };
 
-  const timeOptions = generateTimeOptions24Hour ();
+  const timeOptions = generateTimeOptions24Hour();
 
   return (
     <>
@@ -350,13 +350,10 @@ const Listing = () => {
                 <Loader />
               ) : isMapView ? (
                 <>
-                  {/* <APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAP_KEY}> */}
-                  {/* <MapComponent data={transformedData} /> */}
                   <MapComponent
                     data={transformedData}
                     requestUserLocation={true} // Ask for location on the listing page
                   />
-                  {/* </APIProvider> */}
                 </>
               ) : (
                 <>

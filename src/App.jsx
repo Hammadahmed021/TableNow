@@ -23,7 +23,8 @@
 
     const isApp = Capacitor.isNativePlatform();
 
-    const userId = currentUser?.id || userData?.user?.id;
+    const userId = currentUser?.id;
+    // const userId = currentUser?.id || userData?.user?.id;
 
     // Set up StatusBar for both iOS and Android
     // useEffect(() => {

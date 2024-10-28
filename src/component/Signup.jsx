@@ -211,7 +211,7 @@ export default function Signup() {
               })}
             />
             <p className="text-sm">
-              I agree to all the <Link className="underline" to={'/terms-of-service'}>terms</Link> and <Link className="underline"  to={'/privacy-policy'}>privacy</Link> policies.
+              I agree to all the <Link target="_blank" className="underline" to={'/terms-of-service'}>terms</Link> and <Link className="underline" target="_blank" to={'/privacy-policy'}>privacy</Link> policies.
             </p>
           </div>
           {errors.terms && (

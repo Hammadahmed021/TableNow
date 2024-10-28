@@ -79,6 +79,7 @@ export const signupUser = createAsyncThunk(
         email,
         fname,
         password,
+        phone
       };
       // if(user){}
       const response = await Signup(signupData);
