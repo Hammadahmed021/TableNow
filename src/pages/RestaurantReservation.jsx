@@ -117,7 +117,8 @@ export default function RestaurantReservation() {
   };
 
   const totalPrice = calculateTotalPrice();
-  console.log(totalPrice, "totalPrice");
+  const hotelIDnIntent = { hotel_id, totalPrice };
+  console.log(hotelIDnIntent, "totalPrice >>>>>>>>>");
 
   const handlePayment = async (paymentIntentId) => {
     setIsSigning(true);
@@ -152,13 +153,14 @@ export default function RestaurantReservation() {
       try {
         const result = await fetchBookings(booking, token);
         console.log(result, "booking");
+        // if (result) {
+        setIsSigning(false);
+        showSuccessToast("Booking created successfully");
         dispatch(addBooking(newBooking));
+        // }
       } catch (error) {
         console.log(error, "error while sending bookings");
         throw new Error("something went wrong");
-      } finally {
-        setIsSigning(false);
-        showSuccessToast("Booking created successfully");
       }
       // Use replace to prevent navigation back
       if (user?.uid || Id) {
@@ -498,7 +500,7 @@ export default function RestaurantReservation() {
               </p>
               <Elements stripe={stripePromise}>
                 <CheckoutForm
-                  amount={totalPrice}
+                  amount={hotelIDnIntent}
                   handlePayment={handlePayment}
                   buttonDis={totalPrice}
                 />

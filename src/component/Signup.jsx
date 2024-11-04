@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useDispatch } from "react-redux";
 import { signupUser } from "../store/authSlice";
@@ -21,6 +21,7 @@ export default function Signup() {
     register,
     handleSubmit,
     watch,
+    setValue,
     formState: { errors },
   } = useForm();
 
@@ -67,15 +68,19 @@ export default function Signup() {
       e.preventDefault();
     }
   };
-
   // Prevent non-numeric input in phone number and limit length
   const handlePhoneKeyPress = (e) => {
     const charCode = e.keyCode || e.which;
     const charStr = String.fromCharCode(charCode);
+    // Allow numeric input only
     if (!/^[0-9]+$/.test(charStr)) {
       e.preventDefault();
     }
   };
+  useEffect(() => {
+    // Set the default value of the phone number field to +45
+    setValue("phone", "+45 ");
+  }, [setValue]);
 
   return (
     <form onSubmit={handleSubmit(handleSignup)} className="mt-8">
@@ -139,16 +144,16 @@ export default function Signup() {
             <Input
               mainInput={"sm:w-full w-full"}
               label="Phone Number"
-              placeholder="8191 18181 17337"
+              placeholder="+45 1818 1733"
               type="tel"
-              maxLength={15} // Restrict length to 15 digits
-              onKeyPress={handlePhoneKeyPress} // Prevent alphabets
+              maxLength={12} // Allow space for '+45' and 8 digits
+              onKeyPress={handlePhoneKeyPress}
               {...register("phone", {
                 required: "Phone number is required",
                 validate: {
                   lengthCheck: (value) =>
-                    (value.length >= 11 && value.length <= 15) ||
-                    "Phone number must be between 11 and 15 digits",
+                    value.length === 12 || // '+45' + 8 digits
+                    "Phone number must be 10 digits (including +45)",
                 },
               })}
             />
@@ -211,7 +216,23 @@ export default function Signup() {
               })}
             />
             <p className="text-sm">
-              I agree to all the <Link target="_blank" className="underline" to={'/terms-of-service'}>terms</Link> and <Link className="underline" target="_blank" to={'/privacy-policy'}>privacy</Link> policies.
+              I agree to all the{" "}
+              <Link
+                target="_blank"
+                className="underline"
+                to={"/terms-of-service"}
+              >
+                terms
+              </Link>{" "}
+              and{" "}
+              <Link
+                className="underline"
+                target="_blank"
+                to={"/privacy-policy"}
+              >
+                privacy
+              </Link>{" "}
+              policies.
             </p>
           </div>
           {errors.terms && (
@@ -227,9 +248,7 @@ export default function Signup() {
               className="mr-2"
               {...register("newsletter")}
             />
-            <p className="text-sm">
-              Send me newsletter
-            </p>
+            <p className="text-sm">Send me newsletter</p>
           </div>
           {errors.terms && (
             <p className="text-red-500 text-xs mt-1">{errors.newsletter}</p>
@@ -251,7 +270,9 @@ export default function Signup() {
 
         <Button
           type="submit"
-          className={`w-full ${isSigning ? "opacity-70 cursor-not-allowed" : ""}`}
+          className={`w-full ${
+            isSigning ? "opacity-70 cursor-not-allowed" : ""
+          }`}
           disabled={isSigning}
         >
           {isSigning ? "Registering user..." : "Sign up"}

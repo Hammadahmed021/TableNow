@@ -28,10 +28,16 @@ const CheckoutForm = ({ amount, handlePayment, buttonDis }) => {
 
     setProcessing(true);
 
-    const amountInCents = Math.round(amount * 100);
+    const conv =  amount.totalPrice;
+
+    const amountInCents = Math.round(conv * 100);
+
+    console.log(amount, 'amount >>>>>>>>>>>');
+    
 
     const paymentData = {
       amount: amountInCents,
+      hotel_id: amount.hotel_id,
     };
 
     try {
