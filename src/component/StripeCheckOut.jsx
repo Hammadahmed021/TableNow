@@ -42,6 +42,8 @@ const CheckoutForm = ({ amount, handlePayment, buttonDis }) => {
 
     try {
       const response = await getPayment(paymentData);
+      console.log(response, 'response check for payment method');
+      
 
       const { clientSecret, paymentIntentId } = response;
       console.log("Payment Intent Response:", response);
