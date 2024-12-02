@@ -23,22 +23,31 @@ const Header = ({ style }) => {
   const [toggle, setToggle] = useState(false);  // Menu toggle state
   const { t } = useTranslation();
   const location = useLocation();
-  const token = localStorage.getItem("signToken");  // Get token from localStorage
+  const token = localStorage.getItem("webToken");
+  const tokenCheck = localStorage.getItem("signToken");
+  const authToken = tokenCheck || token
   const isApp = Capacitor.isNativePlatform();
+  
+
+
+  console.log(token, 'token');
   
   const { data } = useFetch("hotels");
   // Fetch current user data based on the token
   const fetchCurrentUserData = async () => {
-    if (token) {
+    if (authToken) {
       try {
-        const response = await verifyUser(token);  // Ensure you're passing the token
+        const response = await verifyUser(authToken);  // Ensure you're passing the token
         const data = response.data;
+        
         setCurrentUser(data);  // Set user data
       } catch (error) {
         console.error("Error fetching user data:", error);
       }
     }
   };
+  console.log(userData, 'currentUser header');
+  
 
   // Fetch user data on initial render and when token changes
   useEffect(() => {
@@ -91,7 +100,9 @@ const Header = ({ style }) => {
   ? data.filter((item) => item.is_approved && item.status === "active")
   : [];
 
-  
+console.log(currentUser?.profile_image ||
+  userData?.user?.profile_image, 'img');
+
 
   return (
     <header className="border-b-2 relative" style={style}>
@@ -115,6 +126,7 @@ const Header = ({ style }) => {
                         src={
                           currentUser?.profile_image ||
                           userData?.user?.profile_image ||
+                          userData?.photo ||
                           fallback
                         }
                         alt="user profile"

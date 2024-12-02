@@ -2,11 +2,12 @@ import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useForm } from "react-hook-form";
 import { clearAllBookings } from "../store/bookingSlice";
-import { updateUserData } from "../store/authSlice";
+import { logout, updateUserData } from "../store/authSlice";
 import { fallback, relatedFallback } from "../assets";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { Button, Loader, LoadMore, Input, RatingModal } from "../component";
+import { Button, Loader, LoadMore, Input, RatingModal, Modal } from "../component";
 import {
+  deleteAccount,
   deleteAllUserBookings,
   deleteUserBooking,
   getUserBookings,
@@ -18,6 +19,7 @@ import {
 import { updateFirebasePassword } from "../service";
 import { Camera, CameraResultType, CameraSource } from "@capacitor/camera";
 import { Capacitor } from "@capacitor/core";
+import { showSuccessToast } from "../utils/Toast";
 
 const MAX_FILE_SIZE_MB = 2; // Maximum file size in MB
 const VALID_IMAGE_TYPES = ["image/jpeg", "image/png", "image/jpg"];
@@ -44,6 +46,8 @@ const Profile = () => {
   const [isClearingAllBookings, setIsClearingAllBookings] = useState(false);
   const [favorites, setFavorites] = useState([]);
   const [selectedBooking, setSelectedBooking] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
 
   const {
     register,
@@ -98,6 +102,21 @@ const Profile = () => {
       console.error("Unable to delete all bookings:", error);
     } finally {
       setIsClearingAllBookings(false); // Reset loading state
+    }
+  };
+
+  const deleteUserAccount = async () => {
+    try {
+      const response = await deleteAccount();
+      console.log(response, 'account deletion response');
+      
+      if (response) {
+        dispatch(logout()); // Dispatch your logout action
+        showSuccessToast('Your account is deleted.')
+      }
+    } catch (error) {
+      showErrorToast(error.message)
+      throw new Error(error || "unable to delete account");
     }
   };
 
@@ -309,8 +328,6 @@ const Profile = () => {
     try {
       const response = await verifyUser();
       const data = await response.data;
-      console.log(data, "data on fetch");
-
       setCurrentUser(data);
       // dispatch(updateUserData(data));
       setValue("name", data?.name || "");
@@ -405,6 +422,35 @@ const Profile = () => {
     });
   };
 
+  const formatPhoneNumberWithCountryCode = (value) => {
+    // Remove all non-numeric characters except for the leading '+45'
+    let cleanedValue = value.replace(/[^0-9]/g, "");
+
+    // Ensure '+45' is always at the beginning
+    if (cleanedValue.startsWith("45")) {
+      cleanedValue = cleanedValue.slice(2);
+    }
+
+    // Format according to the Denmark number format +45 XX XX XX XX
+    const match = cleanedValue.match(/^(\d{0,2})(\d{0,2})(\d{0,2})(\d{0,2})$/);
+    if (match) {
+      const formatted = `+45 ${match[1] ? `${match[1]}` : ""}${
+        match[2] ? ` ${match[2]}` : ""
+      }${match[3] ? ` ${match[3]}` : ""}${match[4] ? ` ${match[4]}` : ""}`;
+      return formatted.trim();
+    }
+    return "+45";
+  };
+
+  const handleYes = () => {
+    console.log("Yes clicked");
+    deleteUserAccount();
+  };
+
+  const handleClose = () => {
+    setIsModalOpen(false);
+  };
+
   return (
     <>
       <div className="container mx-auto p-4">
@@ -454,19 +500,26 @@ const Profile = () => {
                 />
                 <span className="w-full">
                   <Input
-                    label="Phone"
+                    mainInput="sm:w-full w-full"
+                    label="Phone Number"
+                    placeholder="+45 XX XX XX" // Danish phone format with country code
                     type="tel"
-                    maxLength={15} // Restrict length to 15 digits
-                    onKeyPress={handlePhoneKeyPress} // Prevent alphabets
+                    maxLength={15} // Allow space for '+45' and 8 digits formatted as XX XX XX XX
+                    onKeyPress={handlePhoneKeyPress}
                     {...register("phone", {
+                      required: "Phone number is required",
+                      onChange: (e) => {
+                        const formattedValue = formatPhoneNumberWithCountryCode(
+                          e.target.value
+                        );
+                        setValue("phone", formattedValue); // Update form state with formatted value
+                      },
                       validate: {
                         lengthCheck: (value) =>
-                          (value.length >= 11 && value.length <= 15) ||
-                          "Phone number must be between 11 and 15 digits",
+                          value.replace(/\D/g, "").length === 10 || // '+45' + 8 digits
+                          "Phone number must be 8 digits (including +45)",
                       },
                     })}
-                    placeholder="Enter your phone number"
-                    className="mb-6 sm:mb-0"
                   />
                   {errors.phone && (
                     <p className="text-red-500 text-xs mt-1 mb-3">
@@ -520,7 +573,28 @@ const Profile = () => {
           </div>
         </div>
       </div>
-
+      <div className="container mx-auto p-4">
+        <div className="flex items-start justify-between mb-4 flex-wrap sm:flex-nowrap">
+          <div>
+            <h2 className="text-3xl font-extrabold mb-4">Delete Account</h2>
+            <p>All your data will be deleted.</p>
+            <button
+              className={'bg-red-600 px-6 py-2 text-white rounded-lg mt-4'}
+              onClick={() => setIsModalOpen(true)}
+            >
+              Delete Account
+            </button>
+          
+            {isModalOpen && (
+              <Modal
+                title="Are you sure you want to delete account?"
+                onYes={handleYes}
+                onClose={handleClose}
+              />
+            )}
+          </div>
+        </div>
+      </div>
       <div className="container mx-auto p-4">
         <div className="flex items-start justify-between mb-4 flex-wrap sm:flex-nowrap">
           <div>
@@ -532,17 +606,19 @@ const Profile = () => {
               reservation history here.
             </p>
           </div>
-          <Button
-            bgColor="transparent"
-            className={`border border-black h-min mt-3 sm:mt-1 hover:bg-tn_pink hover:text-white hover:border-tn_pink duration-200 sm:inline-block block sm:w-auto w-[90%] m-auto sm:m-0 ${
-              isClearingAllBookings ? "opacity-80 cursor-not-allowed" : ""
-            }`}
-            textColor="text-black"
-            onClick={handleClearAllBookings}
-            disabled={isClearingAllBookings} // Disable the button when clearing
-          >
-            {isClearingAllBookings ? "Clearing..." : "Clear All Bookings"}
-          </Button>
+          {userBooking?.length !== 0 && (
+            <Button
+              bgColor="transparent"
+              className={`border border-black h-min mt-3 sm:mt-1 hover:bg-tn_pink hover:text-white hover:border-tn_pink duration-200 sm:inline-block block sm:w-auto w-[90%] m-auto sm:m-0 ${
+                isClearingAllBookings ? "opacity-80 cursor-not-allowed" : ""
+              }`}
+              textColor="text-black"
+              onClick={handleClearAllBookings}
+              disabled={isClearingAllBookings} // Disable the button when clearing
+            >
+              {isClearingAllBookings ? "Clearing..." : "Clear All Bookings"}
+            </Button>
+          )}
         </div>
 
         {loading ? (

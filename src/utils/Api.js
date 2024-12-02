@@ -106,7 +106,7 @@ export const fetchFilteredData = async (filters) => {
 export const fetchBookings = async (booking) => {
   const token = localStorage.getItem("webToken");
   const tokenCheck = localStorage.getItem("signToken");
-  const authToken = tokenCheck || token
+  const authToken = tokenCheck || token;
 
   try {
     const response = await axios.post(
@@ -164,7 +164,7 @@ export const getPayment = async (paymentData) => {
 export const getUserBookings = async (params) => {
   const token = localStorage.getItem("webToken");
   const tokenCheck = localStorage.getItem("signToken");
-  const authToken = token || tokenCheck  
+  const authToken = token || tokenCheck;
 
   try {
     const { data } = await axios.get(`${BASE_URL}getUserBookings`, {
@@ -188,7 +188,7 @@ export const getUserBookings = async (params) => {
 export const deleteUserBooking = async (booking_id) => {
   const token = localStorage.getItem("webToken");
   const tokenCheck = localStorage.getItem("signToken");
-  const authToken = token || tokenCheck 
+  const authToken = token || tokenCheck;
 
   try {
     const { data } = await axios.put(
@@ -215,7 +215,7 @@ export const deleteUserBooking = async (booking_id) => {
 export const deleteAllUserBookings = async () => {
   const token = localStorage.getItem("webToken");
   const tokenCheck = localStorage.getItem("signToken");
-  const authToken = token || tokenCheck 
+  const authToken = token || tokenCheck;
 
   try {
     const { data } = await axios.put(
@@ -242,7 +242,7 @@ export const deleteAllUserBookings = async () => {
 export const updateUserProfile = async (userData) => {
   const token = localStorage.getItem("webToken");
   const tokenCheck = localStorage.getItem("signToken");
-  const authToken = token || tokenCheck 
+  const authToken = token || tokenCheck;
 
   const { name, phone, profile_image, user_id } = userData;
   console.log(userData, "userData api");
@@ -364,7 +364,7 @@ export const getUserFromGmailSignup = async (userData) => {
 export const addFavorite = async (hotel_id) => {
   const token = localStorage.getItem("webToken");
   const tokenCheck = localStorage.getItem("signToken");
-  const authToken = token || tokenCheck
+  const authToken = token || tokenCheck;
 
   try {
     const response = await axios.post(
@@ -388,8 +388,7 @@ export const addFavorite = async (hotel_id) => {
 export const showFavorite = async () => {
   const token = localStorage.getItem("webToken");
   const tokenCheck = localStorage.getItem("signToken");
-  const authToken = token || tokenCheck
-
+  const authToken = token || tokenCheck;
 
   try {
     const response = await axios.get(`${BASE_URL}user-favorites`, {
@@ -410,7 +409,7 @@ export const showFavorite = async () => {
 export const giveRateToHotel = async (rateData) => {
   const token = localStorage.getItem("webToken");
   const tokenCheck = localStorage.getItem("signToken");
-  const authToken = token || tokenCheck
+  const authToken = token || tokenCheck;
   const { table_booking_id, hotel_id, user_id, rating, review } = rateData;
   try {
     const response = await axios.post(`${BASE_URL}rate`, rateData, {
@@ -470,6 +469,25 @@ export const sendNewsletter = async (newsEmail) => {
     const response = await axios.get(
       `${BASE_URL}subscribe-newsletter/${email}`
     );
+    return response.data;
+  } catch (error) {
+    throw new Error(error.message || "unale to send newsletter");
+  }
+};
+
+// Delete account
+
+export const deleteAccount = async () => {
+  const tokenCheck = localStorage.getItem("signToken");
+  const tokenCheck2 = localStorage.getItem("webToken");
+  const authToken =  tokenCheck || tokenCheck2;
+  try {
+    const response = await axios.delete(`${BASE_URL}delete-acc`,{
+      headers: {
+        Authorization: `Bearer ${authToken}`,
+        "Content-Type": "application/json",
+      },
+    });
     return response.data;
   } catch (error) {
     throw new Error(error.message || "unale to send newsletter");

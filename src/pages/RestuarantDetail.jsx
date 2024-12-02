@@ -40,16 +40,18 @@ export default function RestaurantDetail() {
 
   const user_id = currentUser?.id || userData?.user?.id;
   const { data } = useFetch("hotels", user_id);
-  const today = new Date().toLocaleDateString('en-CA'); // 'en-CA' ensures it uses the 'YYYY-MM-DD' format
-
+  const today = new Date().toLocaleDateString("en-CA"); // 'en-CA' ensures it uses the 'YYYY-MM-DD' format
 
   // Fetch and update card and related restaurants
   useEffect(() => {
     const fetchHotelById = async (id) => {
       try {
         const response = await getHotelByID(id); // Fetch hotel data from API
-        const foundCard = response;
-        console.log(foundCard, "foundCard >>>>>>>>");
+        const foundCard = response?.hotel ?? [];
+        console.log(response, "foundCard >>>>>>>>");
+        const filteredRestaurants = response?.related_hotels ?? [];
+
+        setRelatedRestaurants(filteredRestaurants.slice(0, 4));
 
         // Find the card with the matching id
         // const foundCard = data.find((card) => card.id === parseInt(id, 10));
@@ -83,19 +85,17 @@ export default function RestaurantDetail() {
       });
 
       // Filter restaurants that have matching kitchens and exclude the current one
-      const filteredRestaurants = data?.filter(
-        (restaurant) =>
-          restaurant.id !== parseInt(id, 10) &&
-          restaurant.calendars?.some((calendar) =>
-            calendar.menus?.some((menu) =>
-              menu.kitchens?.some((kitchen) =>
-                foundKitchens.includes(kitchen.restaurant_name)
-              )
-            )
-          )
-      );
-      setRelatedRestaurants(filteredRestaurants.slice(0, 4));
-      
+      // const filteredRestaurants = data?.filter(
+      //   (restaurant) =>
+      //     restaurant.id !== parseInt(id, 10) &&
+      //     restaurant.calendars?.some((calendar) =>
+      //       calendar.menus?.some((menu) =>
+      //         menu.kitchens?.some((kitchen) =>
+      //           foundKitchens.includes(kitchen.restaurant_name)
+      //         )
+      //       )
+      //     )
+      // );
     } else {
       setCard(null);
     }
@@ -115,8 +115,7 @@ export default function RestaurantDetail() {
     fetchHotelById(id);
   }, [id]);
 
-  console.log(relatedRestaurants, 'relatedRestaurants');
-
+  console.log(relatedRestaurants, "relatedRestaurants");
 
   // Get current time in 24-hour format
   const getCurrentTimeIn24HourFormat = () => {
@@ -132,72 +131,74 @@ export default function RestaurantDetail() {
     return time >= "23:59";
   };
 
- // Effect to update available times when the date or card changes
- useEffect(() => {
-  if (card?.calendars) {
-    const dateCalendar = card.calendars.find(
-      (calendar) => calendar.date === today
-    );
-
-    if (dateCalendar) {
-      const times = dateCalendar.calendar_details
-        .map((detail) => ({
-          name: detail.time,
-          id: detail.time,
-        }))
-        .filter((time) => time.id >= currentTime && !isTimePastDayEnd(time.id)); // Filter out times past 11:59 PM
-
-      setAvailableTimes(times || []);
-      resetField("time");
-      resetField("seats");
-      setAvailableSeats([]);
-
-      if (times.length > 0) {
-        setValue("time", times[0].id); // Automatically select the first available time
-      }
-    } else {
-      setAvailableTimes([]);
-    }
-  }
-}, [card, resetField, setValue, today, currentTime]);
-
-// Update available seats based on selected time and booked seats
-useEffect(() => {
-  if (selectedTime && card?.calendars) {
-    const dateCalendar = card.calendars.find(
-      (calendar) => calendar.date === today
-    );
-
-    if (dateCalendar) {
-      const timeDetail = dateCalendar.calendar_details.find(
-        (detail) => detail.time === selectedTime
+  // Effect to update available times when the date or card changes
+  useEffect(() => {
+    if (card?.calendars) {
+      const dateCalendar = card.calendars.find(
+        (calendar) => calendar.date === today
       );
 
-      if (timeDetail) {
-        const bookedSeats = timeDetail.bookedSeats || [];
+      if (dateCalendar) {
+        const times = dateCalendar.calendar_details
+          .map((detail) => ({
+            name: detail.time,
+            id: detail.time,
+          }))
+          .filter(
+            (time) => time.id >= currentTime && !isTimePastDayEnd(time.id)
+          ); // Filter out times past 11:59 PM
 
-        const seats = Array.from(
-          { length: timeDetail.seats },
-          (_, index) => index + 1
-        )
-          .filter((seat) => !bookedSeats.includes(seat))
-          .map((seat) => ({
-            name: seat,
-            label: seat,
-            id: seat,
-          }));
+        setAvailableTimes(times || []);
+        resetField("time");
+        resetField("seats");
+        setAvailableSeats([]);
 
-        setAvailableSeats(seats);
-
-        if (seats.length > 0) {
-          setValue("seats", seats[0].id); // Automatically select the first available seat
+        if (times.length > 0) {
+          setValue("time", times[0].id); // Automatically select the first available time
         }
       } else {
-        setAvailableSeats([]);
+        setAvailableTimes([]);
       }
     }
-  }
-}, [selectedTime, card, setValue, today]);
+  }, [card, resetField, setValue, today, currentTime]);
+
+  // Update available seats based on selected time and booked seats
+  useEffect(() => {
+    if (selectedTime && card?.calendars) {
+      const dateCalendar = card.calendars.find(
+        (calendar) => calendar.date === today
+      );
+
+      if (dateCalendar) {
+        const timeDetail = dateCalendar.calendar_details.find(
+          (detail) => detail.time === selectedTime
+        );
+
+        if (timeDetail) {
+          const bookedSeats = timeDetail.bookedSeats || [];
+
+          const seats = Array.from(
+            { length: timeDetail.seats },
+            (_, index) => index + 1
+          )
+            .filter((seat) => !bookedSeats.includes(seat))
+            .map((seat) => ({
+              name: seat,
+              label: seat,
+              id: seat,
+            }));
+
+          setAvailableSeats(seats);
+
+          if (seats.length > 0) {
+            setValue("seats", seats[0].id); // Automatically select the first available seat
+          }
+        } else {
+          setAvailableSeats([]);
+        }
+      }
+    }
+  }, [selectedTime, card, setValue, today]);
 
   const onSubmit = (formData) => {
     const { date, time, seats } = formData;
@@ -221,9 +222,9 @@ useEffect(() => {
       </div>
     );
 
-  const futureDates = card.calendars.filter(
-    (calendar) => new Date(calendar.date) >= new Date(today)
-  );
+  // const futureDates = card.calendars.filter(
+  //   (calendar) => new Date(calendar.date) >= new Date(today)
+  // );
 
   function extractFacilitiesNames(card) {
     const facilityNames = new Set();
@@ -277,7 +278,9 @@ useEffect(() => {
               <div className="col-span-12 md:col-span-6">
                 <h4 className="text-[17px] font-bold mb-1">About</h4>
                 <p className="text-sm pr-5 mb-6 overflow-y-scroll h-20 block">
-                  <span className="">{card.description || "No description available."}</span>
+                  <span className="">
+                    {card.description || "No description available."}
+                  </span>
                 </p>
                 <h4 className="text-[17px] font-bold mb-1">Social links</h4>
                 <ul className="flex flex-col text-sm">
@@ -593,6 +596,7 @@ useEffect(() => {
                   key={index}
                   id={restaurant.id}
                   restaurant_name={restaurant.restaurant_name}
+                  title={restaurant?.name}
                   location={restaurant.address}
                   images={restaurant.galleries.map((gallery) => gallery.image)}
                   // is_favorite={restaurant.is_favorite}

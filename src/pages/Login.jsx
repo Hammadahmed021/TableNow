@@ -10,6 +10,7 @@ import { auth } from "../service/firebase";
 import { getUserFromGmailLogin } from "../utils/Api";
 import { Capacitor } from "@capacitor/core";
 import useMediaQuery from "../hooks/useQuery";
+import { showErrorToast } from "../utils/Toast";
 
 // const images = [login, signup];
 
@@ -21,8 +22,8 @@ const Login = () => {
   const userData = useSelector((state) => state.auth.userData);
   const isDesktop = useMediaQuery("(max-width: 1550px)");
 
-
-  const isApp = Capacitor.getPlatform() === "android" || Capacitor.getPlatform() === "ios";
+  const isApp =
+    Capacitor.getPlatform() === "android" || Capacitor.getPlatform() === "ios";
 
   const handleLogin = async () => {
     try {
@@ -44,6 +45,7 @@ const Login = () => {
 
       if (userEmail) {
         const response = await getUserFromGmailLogin(userEmail);
+
         const token = response.data.token;
         console.log(token, "token jhan");
 
@@ -67,15 +69,23 @@ const Login = () => {
       }
     } catch (error) {
       console.error("Login failed:", error.message);
+      showErrorToast(error.message);
     }
   };
 
   return (
     <div className="container mx-auto flex sm:items-center justify-center min-h-screen p-0 sm:p-2 relative flex-col sm:flex-col items-stretch">
       <Link to={"/"}>
-        <img src={Logo} className="w-fit relative sm:absolute top-4 left-4 mb-8 sm:mb-0" />
+        <img
+          src={Logo}
+          className="w-fit relative sm:absolute top-4 left-4 mb-8 sm:mb-0"
+        />
       </Link>
-      <div className={`${isDesktop && 'mt-12'} grid grid-cols-1 md:grid-cols-2 gap-12 items-center`}>
+      <div
+        className={`${
+          isDesktop && "mt-12"
+        } grid grid-cols-1 md:grid-cols-2 gap-12 items-center`}
+      >
         {/* Left Column: Login Form */}
         <div className="px-4 sm:px-4">
           <h2 className="text-3xl w-full text-black sm:text-4xl md:text-5xl font-extrabold">

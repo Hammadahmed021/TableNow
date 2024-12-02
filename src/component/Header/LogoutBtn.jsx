@@ -13,7 +13,9 @@ export default function LogoutBtn({ className }) {
     try {
       // Check if the user has the signToken in localStorage
       const signToken = localStorage.getItem("signToken");
-      if (signToken) {
+      const webToken = localStorage.getItem("webToken");
+      const authToken = signToken || webToken;
+      if (authToken) {
         await signOut(); // Call Firebase signOut function
         dispatch(logout()); // Dispatch your logout action
         window.location.href = "/"; // Reload the page

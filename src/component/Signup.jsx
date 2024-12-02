@@ -77,47 +77,76 @@ export default function Signup() {
       e.preventDefault();
     }
   };
-  useEffect(() => {
-    // Set the default value of the phone number field to +45
-    setValue("phone", "+45 ");
-  }, [setValue]);
+
+  const formatPhoneNumberWithCountryCode = (value) => {
+    // Remove all non-numeric characters except for the leading '+45'
+    let cleanedValue = value.replace(/[^0-9]/g, "");
+
+    // Ensure '+45' is always at the beginning
+    if (cleanedValue.startsWith("45")) {
+      cleanedValue = cleanedValue.slice(2);
+    }
+
+    // Format according to the Denmark number format +45 XX XX XX XX
+    const match = cleanedValue.match(/^(\d{0,2})(\d{0,2})(\d{0,2})(\d{0,2})$/);
+    if (match) {
+      const formatted = `+45 ${match[1] ? `${match[1]}` : ""}${
+        match[2] ? ` ${match[2]}` : ""
+      }${match[3] ? ` ${match[3]}` : ""}${match[4] ? ` ${match[4]}` : ""}`;
+      return formatted.trim();
+    }
+    return "+45";
+  };
+
+  const strongPasswordRegex =
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
   return (
     <form onSubmit={handleSubmit(handleSignup)} className="mt-8">
       <div className="mt-2">
         <span className="mb-6 flex space-x-2">
-          <Input
-            mainInput={"sm:w-full w-full"}
-            label="First Name"
-            type="text"
-            placeholder="John"
-            onKeyPress={handleNameKeyPress} // Prevent numbers
-            {...register("fname", {
-              pattern: {
-                value: /^[A-Za-z]+$/,
-                message: "First name should contain only alphabets",
-              },
-            })}
-          />
-          {errors.fname && (
-            <p className="text-red-500 text-xs mt-1">{errors.fname.message}</p>
-          )}
-          <Input
-            mainInput={"sm:w-full w-full"}
-            label="Last Name"
-            type="text"
-            placeholder="Doe"
-            onKeyPress={handleNameKeyPress} // Prevent numbers
-            {...register("lname", {
-              pattern: {
-                value: /^[A-Za-z]+$/,
-                message: "Last name should contain only alphabets",
-              },
-            })}
-          />
-          {errors.lname && (
-            <p className="text-red-500 text-xs mt-1">{errors.lname.message}</p>
-          )}
+          <span className="w-full">
+            <Input
+              mainInput={"sm:w-full w-full"}
+              label="First Name"
+              type="text"
+              placeholder="John"
+              onKeyPress={handleNameKeyPress} // Prevent numbers
+              {...register("fname", {
+                required: "First name is required",
+                pattern: {
+                  value: /^[A-Za-z]+$/,
+                  message: "First name should contain only alphabets",
+                },
+              })}
+            />
+            {errors.fname && (
+              <p className="text-red-500 text-xs mt-1">
+                {errors.fname.message}
+              </p>
+            )}
+          </span>
+          <span className="w-full">
+            <Input
+              mainInput={"sm:w-full w-full"}
+              label="Last Name"
+              type="text"
+              placeholder="Doe"
+              onKeyPress={handleNameKeyPress} // Prevent numbers
+              {...register("lname", {
+                required: "Last name is required",
+                pattern: {
+                  value: /^[A-Za-z]+$/,
+                  message: "Last name should contain only alphabets",
+                },
+              })}
+            />
+            {errors.lname && (
+              <p className="text-red-500 text-xs mt-1">
+                {errors.lname.message}
+              </p>
+            )}
+          </span>
         </span>
         <span className="mb-6 flex space-x-2">
           <span className="w-full">
@@ -142,18 +171,24 @@ export default function Signup() {
           </span>
           <span className="w-full">
             <Input
-              mainInput={"sm:w-full w-full"}
+              mainInput="sm:w-full w-full"
               label="Phone Number"
-              placeholder="+45 1818 1733"
+              placeholder="+45 XX XX XX" // Danish phone format with country code
               type="tel"
-              maxLength={12} // Allow space for '+45' and 8 digits
+              maxLength={15} // Allow space for '+45' and 8 digits formatted as XX XX XX XX
               onKeyPress={handlePhoneKeyPress}
               {...register("phone", {
                 required: "Phone number is required",
+                onChange: (e) => {
+                  const formattedValue = formatPhoneNumberWithCountryCode(
+                    e.target.value
+                  );
+                  setValue("phone", formattedValue); // Update form state with formatted value
+                },
                 validate: {
                   lengthCheck: (value) =>
-                    value.length === 12 || // '+45' + 8 digits
-                    "Phone number must be 10 digits (including +45)",
+                    value.replace(/\D/g, "").length === 10 || // '+45' + 8 digits
+                    "Phone number must be 8 digits (including +45)",
                 },
               })}
             />
@@ -170,11 +205,14 @@ export default function Signup() {
             mainInput={"sm:w-full w-full"}
             label="Password"
             type="password"
-            maxLength={10}
-            minLength={6}
             placeholder="Enter your password"
             {...register("password", {
               required: "Password is required",
+              pattern: {
+                value: strongPasswordRegex,
+                message:
+                  "Password must be at least 8 characters long and include uppercase, lowercase, number, and special character.",
+              },
             })}
           />
           {errors.password && (
@@ -189,8 +227,6 @@ export default function Signup() {
             mainInput={"sm:w-full w-full"}
             label="Confirm Password"
             type="password"
-            maxLength={10}
-            minLength={6}
             placeholder="Re-enter your password"
             {...register("confirmPassword", {
               required: "Confirm Password is required",
