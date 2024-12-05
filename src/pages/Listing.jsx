@@ -81,51 +81,75 @@ const Listing = () => {
   }, [userLocation, param]);
 
   // Function to get user's location
-  const getLocation = async () => {
-    if (
-      Capacitor.getPlatform() === "android" ||
-      Capacitor.getPlatform() === "ios"
-    ) {
-      try {
-        const permissionStatus = await Geolocation.requestPermissions();
-        if (permissionStatus.location === "granted") {
-          const coordinates = await Geolocation.getCurrentPosition();
-          setUserLocation({
-            latitude: coordinates.coords.latitude,
-            longitude: coordinates.coords.longitude,
-          });
-        } else {
-          alert("Please enable location services in your app settings.");
-        }
-      } catch (error) {
-        console.error(
-          "Error requesting geolocation permissions or getting position:",
-          error
-        );
-      }
-    } else if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          setUserLocation({
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude,
-          });
-        },
-        (error) => {
-          console.error("Error getting location:", error);
-        }
-      );
-    } else {
-      console.log("Geolocation is not supported by this browser.");
-    }
+ // Function to get user's location
+const getLocation = async () => {
+  setLoading(true); // Start loading
+  let locationTimeout;
+
+  // Define timeout to hide loader and prompt for permissions
+  const handleLocationTimeout = () => {
+    setLoading(false); // Hide loader
+    alert("Unable to get location. Please enable location services in your app or browser settings.");
   };
 
-  useEffect(() => {
-    const getLoca = async () => {
-      await getLocation();
-    };
-    getLoca();
-  }, []);
+  locationTimeout = setTimeout(handleLocationTimeout, 10000); // 10-second timeout
+
+  if (
+    Capacitor.getPlatform() === "android" ||
+    Capacitor.getPlatform() === "ios"
+  ) {
+    try {
+      const permissionStatus = await Geolocation.requestPermissions();
+      if (permissionStatus.location === "granted") {
+        const coordinates = await Geolocation.getCurrentPosition();
+        clearTimeout(locationTimeout); // Clear timeout if location is retrieved
+        setUserLocation({
+          latitude: coordinates.coords.latitude,
+          longitude: coordinates.coords.longitude,
+        });
+      } else {
+        alert("Please enable location services in your app settings.");
+      }
+    } catch (error) {
+      console.error(
+        "Error requesting geolocation permissions or getting position:",
+        error
+      );
+    } finally {
+      clearTimeout(locationTimeout);
+      setLoading(false); // Ensure loader is hidden
+    }
+  } else if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        clearTimeout(locationTimeout); // Clear timeout if location is retrieved
+        setUserLocation({
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+        });
+        setLoading(false); // Hide loader
+      },
+      (error) => {
+        console.error("Error getting location:", error);
+        clearTimeout(locationTimeout);
+        setLoading(false); // Hide loader
+        alert("Unable to get location. Please enable location services in your browser settings.");
+      }
+    );
+  } else {
+    clearTimeout(locationTimeout);
+    console.log("Geolocation is not supported by this browser.");
+    setLoading(false); // Hide loader
+  }
+};
+
+// Call getLocation on component mount
+useEffect(() => {
+  const getLoca = async () => {
+    await getLocation();
+  };
+  getLoca();
+}, []);
 
   useEffect(() => {
     const showFilter = async () => {
@@ -419,13 +443,10 @@ const Listing = () => {
                 <Loader />
               ) : isMapView ? (
                 <>
-                  {/* <APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAP_KEY}> */}
-                  {/* <MapComponent data={transformedData} /> */}
                   <MapComponent
                     data={transformedData}
                     requestUserLocation={true} // Ask for location on the listing page
                   />
-                  {/* </APIProvider> */}
                 </>
               ) : (
                 <>

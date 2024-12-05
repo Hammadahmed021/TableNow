@@ -5,7 +5,14 @@ import { clearAllBookings } from "../store/bookingSlice";
 import { logout, updateUserData } from "../store/authSlice";
 import { fallback, relatedFallback } from "../assets";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { Button, Loader, LoadMore, Input, RatingModal, Modal } from "../component";
+import {
+  Button,
+  Loader,
+  LoadMore,
+  Input,
+  RatingModal,
+  Modal,
+} from "../component";
 import {
   deleteAccount,
   deleteAllUserBookings,
@@ -21,7 +28,7 @@ import { Camera, CameraResultType, CameraSource } from "@capacitor/camera";
 import { Capacitor } from "@capacitor/core";
 import { showSuccessToast } from "../utils/Toast";
 
-const MAX_FILE_SIZE_MB = 2; // Maximum file size in MB
+const MAX_FILE_SIZE_MB = 10; // Maximum file size in MB
 const VALID_IMAGE_TYPES = ["image/jpeg", "image/png", "image/jpg"];
 
 const Profile = () => {
@@ -47,7 +54,7 @@ const Profile = () => {
   const [favorites, setFavorites] = useState([]);
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-
+  const [togglePassword, setTogglePassword] = useState(false);
 
   const {
     register,
@@ -108,14 +115,14 @@ const Profile = () => {
   const deleteUserAccount = async () => {
     try {
       const response = await deleteAccount();
-      console.log(response, 'account deletion response');
-      
+      console.log(response, "account deletion response");
+
       if (response) {
         dispatch(logout()); // Dispatch your logout action
-        showSuccessToast('Your account is deleted.')
+        showSuccessToast("Your account is deleted.");
       }
     } catch (error) {
-      showErrorToast(error.message)
+      showErrorToast(error.message);
       throw new Error(error || "unable to delete account");
     }
   };
@@ -451,6 +458,10 @@ const Profile = () => {
     setIsModalOpen(false);
   };
 
+  const toggleText = () => {
+    setTogglePassword((prev) => !prev);
+  };
+
   return (
     <>
       <div className="container mx-auto p-4">
@@ -530,28 +541,40 @@ const Profile = () => {
               </span>
 
               {!isGmailUser && (
-                <span className="mb-6 block">
-                  <span className="flex-wrap flex space-x-0 sm:space-x-2 sm:flex-nowrap">
-                    <Input
-                      label="New Password"
-                      type="password"
-                      {...register("newPassword")}
-                      placeholder="Enter new password"
-                      // disabled={isGmailUser}
-                      className="mb-6 sm:mb-0"
-                    />
-                    <Input
-                      label="Confirm Password"
-                      type="password"
-                      {...register("confirmPassword")}
-                      placeholder="Confirm new password"
-                      // disabled={isGmailUser}
-                    />
+                <>
+                  <span className="w-full block mb-6">
+                    <p className="text-tn_text_grey text-sm">
+                      Want to change password?{" "}
+                      <span className="underline cursor-pointer" onClick={toggleText}>
+                       {togglePassword ? 'hide' : 'click here'}
+                      </span>
+                    </p>
                   </span>
-                  {showError && (
-                    <p className="text-red-500 text-sm">{showError}</p>
+                  {togglePassword && (
+                    <span className="mb-6 block">
+                      <span className="flex-wrap flex space-x-0 sm:space-x-2 sm:flex-nowrap">
+                        <Input
+                          label="New Password"
+                          type="password"
+                          {...register("newPassword")}
+                          placeholder="Enter new password"
+                          // disabled={isGmailUser}
+                          className="mb-6 sm:mb-0"
+                        />
+                        <Input
+                          label="Confirm Password"
+                          type="password"
+                          {...register("confirmPassword")}
+                          placeholder="Confirm new password"
+                          // disabled={isGmailUser}
+                        />
+                      </span>
+                      {showError && (
+                        <p className="text-red-500 text-sm">{showError}</p>
+                      )}
+                    </span>
                   )}
-                </span>
+                </>
               )}
 
               <Button
@@ -579,12 +602,12 @@ const Profile = () => {
             <h2 className="text-3xl font-extrabold mb-4">Delete Account</h2>
             <p>All your data will be deleted.</p>
             <button
-              className={'bg-red-600 px-6 py-2 text-white rounded-lg mt-4'}
+              className={"bg-red-600 px-6 py-2 text-white rounded-lg mt-4"}
               onClick={() => setIsModalOpen(true)}
             >
               Delete Account
             </button>
-          
+
             {isModalOpen && (
               <Modal
                 title="Are you sure you want to delete account?"
@@ -664,7 +687,7 @@ const Profile = () => {
                 </p>
                 <p className="text-sm mb-2 flex justify-between items-center text-tn_dark_field">
                   <span className="underline mr-2">Total Price</span> Dkk{" "}
-                  {booking?.total_pay}
+                  {booking?.total_amount}
                 </p>
               </div>
 

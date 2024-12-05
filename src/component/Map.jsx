@@ -1,5 +1,10 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { GoogleMap, Marker, InfoWindow, useJsApiLoader } from "@react-google-maps/api";
+import {
+  GoogleMap,
+  Marker,
+  InfoWindow,
+  useJsApiLoader,
+} from "@react-google-maps/api";
 import { useNavigate } from "react-router-dom";
 import Loader from "./Loader";
 import { fallback, marker, markerSec } from "../assets";
@@ -24,7 +29,8 @@ const calculateDistance = (lat1, lng1, lat2, lng2) => {
     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
     Math.cos((lat1 * Math.PI) / 180) *
       Math.cos((lat2 * Math.PI) / 180) *
-      Math.sin(dLng / 2) * Math.sin(dLng / 2);
+      Math.sin(dLng / 2) *
+      Math.sin(dLng / 2);
 
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
@@ -38,14 +44,18 @@ const MapComponent = ({ data, requestUserLocation }) => {
   const [map, setMap] = useState(null);
   const [userLocation, setUserLocation] = useState(null); // User's location
   const [showNearby, setShowNearby] = useState(false); // Whether to show nearby places
-  const [zoom, setZoom] = useState(13); // Map zoom level
+  const [zoom, setZoom] = useState(8); // Map zoom level
 
   const { isLoaded, loadError } = useJsApiLoader({
     googleMapsApiKey: API_KEY,
   });
 
   if (!data || data.length === 0) {
-    return <div className="text-start text-gray-500 mt-5">No data available to display</div>;
+    return (
+      <div className="text-start text-gray-500 mt-5">
+        No data available to display
+      </div>
+    );
   }
 
   const validCoordinates = data
@@ -83,12 +93,12 @@ const MapComponent = ({ data, requestUserLocation }) => {
           };
           setUserLocation(userCoords);
           setCenter(userCoords); // Center map on user's location
-          setZoom(13); // Zoom in to show nearby places
+          setZoom(8); // Zoom in to show nearby places
           setShowNearby(true); // Show nearby restaurants
         },
         () => {
           setCenter(defaultCoordinates); // Set to default if permission denied
-          setZoom(12); // Keep default zoom
+          setZoom(8); // Keep default zoom
           setShowNearby(false); // Show all locations
         }
       );
@@ -98,7 +108,7 @@ const MapComponent = ({ data, requestUserLocation }) => {
   // Update map bounds or zoom in on nearby locations if user location is available
   useEffect(() => {
     if (map) {
-      const bounds = new window.google.maps.LatLngBounds();
+      const bounds = new window.google.maps.LatLngBounds(center);
       if (showNearby && userLocation) {
         nearbyRestaurants.forEach((coord) =>
           bounds.extend({ lat: coord.lat, lng: coord.lng })
@@ -109,15 +119,25 @@ const MapComponent = ({ data, requestUserLocation }) => {
           bounds.extend({ lat: coord.lat, lng: coord.lng })
         );
         map.fitBounds(bounds);
-        setZoom(13); // Default zoom level
+        setZoom(8); // Default zoom level
       }
     }
   }, [map, validCoordinates, userLocation, showNearby, nearbyRestaurants]);
 
-  const handleMarkerClick = useCallback((lat, lng, restaurant_name, location, id) => {
-    setCenter({ lat, lng });
-    setSelectedMarker({ lat, lng, restaurant_name, location, id });
-  }, []);
+  const handleMarkerClick = useCallback(
+    (lat, lng, restaurant_name, location, id) => {
+      setCenter({ lat, lng });
+      setSelectedMarker({ lat, lng, restaurant_name, location, id });
+    },
+    []
+  );
+
+  const handleZoomChange = () => {
+    if (map) {
+      const currentZoom = map.getZoom();
+      setZoom(currentZoom);
+    }
+  };
 
   if (loadError) return <div>Error loading maps</div>;
   if (!isLoaded)
@@ -132,8 +152,11 @@ const MapComponent = ({ data, requestUserLocation }) => {
         <GoogleMap
           mapContainerStyle={containerStyle}
           center={center}
-          zoom={zoom}
-          onLoad={(mapInstance) => setMap(mapInstance)}
+          zoom={20}
+          onLoad={(mapInstance) => {
+            setMap(mapInstance);
+            mapInstance.addListener("zoom_changed", handleZoomChange);
+          }}
           options={{ disableDefaultUI: true }}
         >
           {validCoordinates.map((item, index) => (
@@ -151,12 +174,14 @@ const MapComponent = ({ data, requestUserLocation }) => {
                 )
               }
               icon={{
-                url: userLocation && nearbyRestaurants.some(
-                  (nearby) =>
-                    nearby.lat === item.lat && nearby.lng === item.lng
-                )
-                  ? markerSec // Highlight nearby with green marker
-                  : marker, // Others with red
+                url:
+                  userLocation &&
+                  nearbyRestaurants.some(
+                    (nearby) =>
+                      nearby.lat === item.lat && nearby.lng === item.lng
+                  )
+                    ? markerSec // Highlight nearby with green marker
+                    : marker, // Others with red
                 scaledSize: new window.google.maps.Size(30, 30),
               }}
             >
@@ -204,14 +229,16 @@ const MapComponent = ({ data, requestUserLocation }) => {
                 cursor: "pointer",
                 marginBottom: "10px",
                 padding: "10px",
-                borderWidth: '1px',
+                borderWidth: "1px",
                 borderRadius: "5px",
                 borderColor:
-                  selectedMarker && item.restaurant_name === selectedMarker.restaurant_name
+                  selectedMarker &&
+                  item.restaurant_name === selectedMarker.restaurant_name
                     ? "#fff"
                     : "#e0e0e0",
                 background:
-                  selectedMarker && item.restaurant_name === selectedMarker.restaurant_name
+                  selectedMarker &&
+                  item.restaurant_name === selectedMarker.restaurant_name
                     ? "#efefef"
                     : "#fff",
               }}
