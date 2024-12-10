@@ -8,9 +8,11 @@ import { useForm } from "react-hook-form";
 import axios from "axios";
 import { sendNewsletter } from "../../utils/Api";
 import { showErrorToast, showSuccessToast } from "../../utils/Toast";
+import { Capacitor } from "@capacitor/core";
 
 const Footer = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const isApp = Capacitor.isNativePlatform();
 
   const Form = () => {
     const {
@@ -60,16 +62,15 @@ const Footer = () => {
                   {errors.email.message}
                 </p>
               )}
-               </div>
-              <Button
-                children={isSubmitting ? "Subscribing..." : "Submit"}
-                type="submit"
-                disabled={isSubmitting}
-                className={`ml-0 sm:ml-2 block w-full sm:w-auto sm:inline-block mt-2 sm:mt-0 ${
-                  isSubmitting ? "opacity-80" : ""
-                }`}
-              />
-           
+            </div>
+            <Button
+              children={isSubmitting ? "Subscribing..." : "Submit"}
+              type="submit"
+              disabled={isSubmitting}
+              className={`ml-0 sm:ml-2 block w-full sm:w-auto sm:inline-block mt-2 sm:mt-0 ${
+                isSubmitting ? "opacity-80" : ""
+              }`}
+            />
           </div>
         </form>
       </>
@@ -171,10 +172,12 @@ const Footer = () => {
       </div>
       <div className="footer-bottom py-4 flex justify-between container mx-auto items-center">
         <p>© 2024 tablenow | All rights Reserved</p>
-        <div className="flex items-center">
-          <LuGlobe size={18} />
-          <p className="ml-4">ENG | USD</p>
-        </div>
+        {!isApp && (
+          <div className="flex items-center">
+            <LuGlobe size={18} />
+            <p className="ml-4">ENG | USD</p>
+          </div>
+        )}
       </div>
     </footer>
   );

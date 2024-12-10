@@ -542,7 +542,7 @@ const Profile = () => {
 
               {!isGmailUser && (
                 <>
-                  <span className="w-full block mb-6">
+                  <span className="w-full block mb-6 mt-4">
                     <p className="text-tn_text_grey text-sm">
                       Want to change password?{" "}
                       <span className="underline cursor-pointer" onClick={toggleText}>

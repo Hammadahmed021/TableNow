@@ -291,9 +291,9 @@ console.log(currentUser?.profile_image ||
               </Link>
             </div>
             <div className="space-x-2">
-              <Link to={"/profile"} className="text-tn_dark">
+              {/* <Link to={"/profile"} className="text-tn_dark">
                 <LuShoppingBag size={26} />
-              </Link>
+              </Link> */}
             </div>
           </nav>
         )}
