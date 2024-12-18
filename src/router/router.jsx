@@ -19,6 +19,7 @@ import {
   Thankyou,
   NotFound,
   ForgotPassword,
+  Bookings,
 } from "../pages";
 import { AuthLayout } from "../component";
 
@@ -48,6 +49,7 @@ function BaseRouter() {
           <Route path="thankyou" element={<Thankyou />} />
           <Route path="reservation/:id" element={<RestaurantReservation />} />
           <Route path="profile" element={<AuthLayout authentication={true}><Profile /></AuthLayout>} />
+          <Route path="bookings" element={<AuthLayout authentication={true}><Bookings /></AuthLayout>} />
           <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>

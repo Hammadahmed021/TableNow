@@ -84,7 +84,7 @@ const Footer = () => {
           {/* <!-- 40% Column --> */}
           <div class="w-full md:w-2/5 py-2 sm:py-4">
             <Link to={"/"}>
-              <img src={Logo} alt="" className="w-64" />
+              <img src={Logo} alt="" className="w-36 sm:w-48" />
             </Link>
             <p className="py-6 mr-0 sm:mr-6">
               Lorem ipsum dolor sit amet, consectetur adipiscing elit. Purus

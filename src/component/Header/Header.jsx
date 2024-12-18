@@ -2,7 +2,16 @@ import React, { useState, useEffect, useRef } from "react";
 import { Logo, fallback, fb, instagram, twitter, youtube } from "../../assets";
 import { Link, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { LuBackpack, LuCross, LuGlobe, LuMenu, LuShoppingBag, LuShoppingCart, LuUtensilsCrossed, LuX } from "react-icons/lu";
+import {
+  LuBackpack,
+  LuCross,
+  LuGlobe,
+  LuMenu,
+  LuShoppingBag,
+  LuShoppingCart,
+  LuUtensilsCrossed,
+  LuX,
+} from "react-icons/lu";
 import useMediaQuery from "../../hooks/useQuery";
 import useFetch from "../../hooks/useFetch";
 import Search from "../Search";
@@ -16,38 +25,35 @@ import { Capacitor } from "@capacitor/core";
 const Header = ({ style }) => {
   const dropdownRef = useRef(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [currentUser, setCurrentUser] = useState(null);  // Ensure it is null initially
+  const [currentUser, setCurrentUser] = useState(null); // Ensure it is null initially
   const authStatus = useSelector((state) => state.auth.status);
   const userData = useSelector((state) => state.auth.userData);
   const isDesktop = useMediaQuery("(max-width: 991px)");
-  const [toggle, setToggle] = useState(false);  // Menu toggle state
+  const [toggle, setToggle] = useState(false); // Menu toggle state
   const { t } = useTranslation();
   const location = useLocation();
   const token = localStorage.getItem("webToken");
   const tokenCheck = localStorage.getItem("signToken");
-  const authToken = tokenCheck || token
+  const authToken = tokenCheck || token;
   const isApp = Capacitor.isNativePlatform();
-  
 
+  console.log(token, "token");
 
-  console.log(token, 'token');
-  
   const { data } = useFetch("hotels");
   // Fetch current user data based on the token
   const fetchCurrentUserData = async () => {
     if (authToken) {
       try {
-        const response = await verifyUser(authToken);  // Ensure you're passing the token
+        const response = await verifyUser(authToken); // Ensure you're passing the token
         const data = response.data;
-        
-        setCurrentUser(data);  // Set user data
+
+        setCurrentUser(data); // Set user data
       } catch (error) {
         console.error("Error fetching user data:", error);
       }
     }
   };
-  console.log(userData, 'currentUser header');
-  
+  console.log(userData, "currentUser header");
 
   // Fetch user data on initial render and when token changes
   useEffect(() => {
@@ -64,7 +70,7 @@ const Header = ({ style }) => {
   // Close menu on route change
   useEffect(() => {
     if (toggle) {
-      setToggle(false);  // Close menu when route changes
+      setToggle(false); // Close menu when route changes
     }
   }, [location]);
 
@@ -77,7 +83,7 @@ const Header = ({ style }) => {
     }
 
     return () => {
-      document.body.classList.remove("overflow-hidden");  // Cleanup
+      document.body.classList.remove("overflow-hidden"); // Cleanup
     };
   }, [toggle]);
 
@@ -85,7 +91,7 @@ const Header = ({ style }) => {
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setIsDropdownOpen(false);  // Close dropdown if clicked outside
+        setIsDropdownOpen(false); // Close dropdown if clicked outside
       }
     };
 
@@ -97,12 +103,13 @@ const Header = ({ style }) => {
   }, []);
 
   const approvedData = Array.isArray(data)
-  ? data.filter((item) => item.is_approved && item.status === "active")
-  : [];
+    ? data.filter((item) => item.is_approved && item.status === "active")
+    : [];
 
-console.log(currentUser?.profile_image ||
-  userData?.user?.profile_image, 'img');
-
+  console.log(
+    currentUser?.profile_image || userData?.user?.profile_image,
+    "img"
+  );
 
   return (
     <header className="border-b-2 relative" style={style}>
@@ -118,7 +125,7 @@ console.log(currentUser?.profile_image ||
             <ul className="flex ml-auto items-center">
               <LanguageSelector />
               <span className="mx-4">|</span>
-              {(authStatus || !!currentUser?.is_approved || token) ? (
+              {authStatus || !!currentUser?.is_approved || token ? (
                 <li className="inline-flex space-x-2">
                   <div className="relative inline-block">
                     <div className="flex items-center cursor-pointer">
@@ -159,6 +166,9 @@ console.log(currentUser?.profile_image ||
                         >
                           Profile
                         </Link>
+                        <li>
+                          <Link to={"/bookings"} className="block px-4 py-2 text-tn_dark hover:bg-gray-200">Bookings</Link>
+                        </li>
                         <LogoutBtn />
                       </div>
                     )}
@@ -195,13 +205,13 @@ console.log(currentUser?.profile_image ||
                       size={24}
                       className="mt-3 -ml-1"
                     />
-                    {(authStatus || !!currentUser?.is_approved || token) ? (
+                    {authStatus || !!currentUser?.is_approved || token ? (
                       <li className="inline-block">
                         <span className="text-tn_dark text-lg font-medium">
                           <img
                             src={
                               currentUser?.profile_image ||
-                              userData?.profile_image?.name ||
+                              userData?.profile_image ||
                               fallback
                             }
                             alt="user profile"
@@ -226,7 +236,7 @@ console.log(currentUser?.profile_image ||
                       <Link to={"/profile"}>Edit Profile</Link>
                     </li>
                     <li>
-                      <Link to={"/profile"}>Booking History</Link>
+                      <Link to={"/bookings"}>Booking History</Link>
                     </li>
                     <li>
                       <Link to={"/privacy-policy"}>Privacy Policy</Link>

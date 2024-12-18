@@ -259,7 +259,7 @@ export default function Home() {
       </div>
 
       <div className="container mx-auto">
-        <div className="flex justify-between mb-10 sm:mb-14 flex-col sm:flex-row items-end">
+        <div className="flex justify-between mb-10 sm:mb-14 flex-col sm:flex-row items-center">
           <div className="text-center sm:text-start">
             <h2 className="text-3xl w-full text-black sm:text-4xl md:text-5xl font-extrabold ">
               Restaurants Near You

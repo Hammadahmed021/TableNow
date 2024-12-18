@@ -31,7 +31,7 @@ import { showSuccessToast } from "../utils/Toast";
 const MAX_FILE_SIZE_MB = 10; // Maximum file size in MB
 const VALID_IMAGE_TYPES = ["image/jpeg", "image/png", "image/jpg"];
 
-const Profile = () => {
+const Bookings = () => {
   const { id } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -465,162 +465,226 @@ const Profile = () => {
   return (
     <>
       <div className="container mx-auto p-4">
-        <div className="flex flex-col md:flex-row items-start justify-between mb-4">
-          <div className="w-full md:w-1/2">
-            <div className="flex flex-col">
-              <div className="flex items-center overflow-hidden">
+        <div className="flex items-start justify-between mb-4 flex-wrap sm:flex-nowrap">
+          <div>
+            <h2 className="text-3xl font-extrabold mb-4">
+              Your Booking History
+            </h2>
+            <p>
+              Check your past and upcoming reservations easily by viewing your
+              reservation history here.
+            </p>
+          </div>
+          {userBooking?.length !== 0 && (
+            <Button
+              bgColor="transparent"
+              className={`border border-black h-min mt-3 sm:mt-1 hover:bg-tn_pink hover:text-white hover:border-tn_pink duration-200 sm:inline-block hidden sm:w-auto w-[90%] m-auto sm:m-0 ${
+                isClearingAllBookings ? "opacity-80 cursor-not-allowed" : ""
+              }`}
+              textColor="text-black"
+              onClick={handleClearAllBookings}
+              disabled={isClearingAllBookings} // Disable the button when clearing
+            >
+              {isClearingAllBookings ? "Clearing..." : "Clear All Bookings"}
+            </Button>
+          )}
+        </div>
+
+        {loading ? (
+          <Loader />
+        ) : userBooking?.length === 0 ? (
+          <p className="text-lg text-tn_dark">No bookings to display.</p>
+        ) : (
+          userBooking?.slice(0, displayedBookings).map((booking, index) => (
+            <div
+              key={`${booking?.id}-${index}`}
+              className="border rounded-lg p-4 mb-4 shadow-lg flex items-start justify-between flex-wrap relative"
+            >
+              <div className="flex items-start justify-start w-full sm:w-auto mb-2 sm:mb-0">
                 <img
-                  src={imagePreview}
-                  alt="user profile"
-                  className="w-16 h-16 rounded-full"
+                  src={
+                    booking.hotel?.profile_image ||
+                    booking.hotel?.galleries[0]?.image ||
+                    fallback
+                  }
+                  className="w-20 h-16 rounded-md"
+                  alt="hotel"
                 />
-                <div className="ml-4">
-                  {isApp ? (
-                    <button
-                      onClick={handlePickImage}
-                      className="bg-tn_pink p-2 rounded-md text-xs text-white"
-                    >
-                      Pick an Image
-                    </button>
-                  ) : (
-                    <input
-                      type="file"
-                      accept=".jpg, .jpeg, .png"
-                      onChange={handleFileChange}
-                    />
-                  )}
-                  {fileError && <p className="text-red-500">{fileError}</p>}
+                <div className="ml-2">
+                  <p>{booking?.hotel?.type}</p>
+                  <p className="font-bold text-xl capitalize">
+                    {booking?.hotel?.restaurant_name}
+                  </p>
                 </div>
               </div>
 
-              <div className="my-6">
-                <h2 className="text-3xl font-black text-tn_dark">
-                  Welcome {currentUser?.name || "N/A"}
-                </h2>
-                <p>You can change your profile information here.</p>
+              <div>
+                <p className="text-sm mb-2 flex justify-between items-center text-tn_dark_field">
+                  <span className="underline mr-2">Date </span> {booking?.date}
+                </p>
+                <p className="text-sm mb-2 flex justify-between items-center text-tn_dark_field">
+                  <span className="underline mr-2">Time</span> {booking?.time}
+                </p>
+              </div>
+              <div>
+                <p className="text-sm mb-2 flex justify-between items-center text-tn_dark_field">
+                  <span className="underline mr-2">Number of Persons</span>
+                  {booking?.seats}
+                </p>
+                <p className="text-sm mb-2 flex justify-between items-center text-tn_dark_field">
+                  <span className="underline mr-2">Total Price</span> Dkk{" "}
+                  {booking?.total_amount}
+                </p>
+              </div>
+
+              <div className="flex space-x-2 w-full sm:w-auto sm:mt-0 mt-4 items-center">
+                {booking.is_eligible_to_rate ? (
+                  booking.ratings && booking.ratings.length > 0 ? (
+                    <span className="text-green-500 text-sm sm:text-base">
+                      Rated
+                    </span>
+                  ) : (
+                    <span
+                      className="text-sm sm:text-base hover:opacity-80 text-tn_pink cursor-pointer"
+                      onClick={() => {
+                        setSelectedBooking(booking);
+                        setIsRatingModalOpen(true);
+                      }}
+                    >
+                      Leave a review
+                    </span>
+                  )
+                ) : (
+                  <span className="text-gray-500 text-sm sm:text-base">
+                    Unable to rate
+                  </span>
+                )}
+
+                <Link
+                  to={`/restaurant/${booking?.hotel?.id}`}
+                  className="hover:bg-tn_dark_field bg-tn_pink text-white text-lg sm:text-base px-2 py-1 rounded-lg inline-block duration-200 transition-all w-full sm:w-auto text-center"
+                >
+                  Rebook
+                </Link>
+
+                <Button
+                  onClick={() => handleClearBooking(booking?.id)}
+                  padX={"px-2"}
+                  padY={"py-1"}
+                  className={`rounded-lg bg-tn_dark_field text-white hover:bg-tn_pink hover:opacity-80 text-xs sm:text-sm absolute sm:relative top-2 right-2 sm:top-0 sm:right-0 ${
+                    isClearBooking[booking?.id]
+                      ? "opacity-70 cursor-not-allowed"
+                      : ""
+                  }`}
+                  disabled={isClearBooking[booking?.id]}
+                >
+                  {isClearBooking[booking?.id] ? "..." : "X"}
+                </Button>
               </div>
             </div>
-            <form onSubmit={handleSubmit(onSave)} className="mt-4 w-full">
-              <span className="flex-wrap flex space-x-0 sm:space-x-2 sm:flex-nowrap">
-                <Input
-                  label="Name"
-                  onKeyPress={handleNameKeyPress} // Prevent numbers
-                  {...register("name")}
-                  placeholder="Enter your name"
-                  className="mb-6"
-                />
-                <span className="w-full">
-                  <Input
-                    mainInput="sm:w-full w-full"
-                    label="Phone Number"
-                    placeholder="+45 XX XX XX" // Danish phone format with country code
-                    type="tel"
-                    maxLength={15} // Allow space for '+45' and 8 digits formatted as XX XX XX XX
-                    onKeyPress={handlePhoneKeyPress}
-                    {...register("phone", {
-                      required: "Phone number is required",
-                      onChange: (e) => {
-                        const formattedValue = formatPhoneNumberWithCountryCode(
-                          e.target.value
-                        );
-                        setValue("phone", formattedValue); // Update form state with formatted value
-                      },
-                      validate: {
-                        lengthCheck: (value) =>
-                          value.replace(/\D/g, "").length === 10 || // '+45' + 8 digits
-                          "Phone number must be 8 digits (including +45)",
-                      },
-                    })}
-                  />
-                  {errors.phone && (
-                    <p className="text-red-500 text-xs mt-1 mb-3">
-                      {errors.phone.message}
-                    </p>
-                  )}
-                </span>
-              </span>
+          ))
+        )}
+        <RatingModal
+          isOpen={isRatingModalOpen}
+          onClose={() => setIsRatingModalOpen(false)}
+          onSubmit={handleRatingSubmit}
+          booking={selectedBooking} // Pass the selected booking object
+        />
 
-              {!isGmailUser && (
-                <>
-                  <span className="w-full block mb-6 mt-4">
-                    <p className="text-tn_text_grey text-sm">
-                      Want to change password?{" "}
-                      <span className="underline cursor-pointer" onClick={toggleText}>
-                       {togglePassword ? 'hide' : 'click here'}
-                      </span>
-                    </p>
-                  </span>
-                  {togglePassword && (
-                    <span className="mb-6 block">
-                      <span className="flex-wrap flex space-x-0 sm:space-x-2 sm:flex-nowrap">
-                        <Input
-                          label="New Password"
-                          type="password"
-                          {...register("newPassword")}
-                          placeholder="Enter new password"
-                          // disabled={isGmailUser}
-                          className="mb-6 sm:mb-0"
-                        />
-                        <Input
-                          label="Confirm Password"
-                          type="password"
-                          {...register("confirmPassword")}
-                          placeholder="Confirm new password"
-                          // disabled={isGmailUser}
-                        />
-                      </span>
-                      {showError && (
-                        <p className="text-red-500 text-sm">{showError}</p>
-                      )}
-                    </span>
-                  )}
-                </>
-              )}
-
-              <Button
-                type="submit"
-                className={`w-full  ${
-                  isSigning ? "opacity-70 cursor-not-allowed" : ""
-                }`}
-                disabled={isSigning}
-              >
-                {isSigning ? "Saving..." : "Save changes"}
-              </Button>
-              {successMessage && (
-                <p className="text-green-500 mt-3">{successMessage}</p>
-              )}
-            </form>
-          </div>
-          <div className="w-full md:w-1/2 hidden md:flex md:ml-8  justify-end">
-            <img src={relatedFallback} alt="" className="w-full md:w-[400px]" />
-          </div>
-        </div>
+        {userBooking.length >= displayedBookings && (
+          <LoadMore onLoadMore={handleLoadMore} hasMore={hasMore} />
+        )}
       </div>
+        <div>
+      {userBooking?.length !== 0 && (
+        <Button
+          bgColor="transparent"
+          className={`border border-black h-min mt-0 mb-6 sm:mt-1 hover:bg-tn_pink hover:text-white hover:border-tn_pink duration-200 sm:hidden block sm:w-auto w-[90%] m-auto sm:m-0 ${
+            isClearingAllBookings ? "opacity-80 cursor-not-allowed" : ""
+          }`}
+          textColor="text-black"
+          onClick={handleClearAllBookings}
+          disabled={isClearingAllBookings} // Disable the button when clearing
+        >
+          {isClearingAllBookings ? "Clearing..." : "Clear All Bookings"}
+        </Button>
+      )}
+      </div>
+
       <div className="container mx-auto p-4">
         <div className="flex items-start justify-between mb-4 flex-wrap sm:flex-nowrap">
           <div>
-            <h2 className="text-3xl font-extrabold mb-4">Delete Account</h2>
-            <p>All your data will be deleted.</p>
-            <button
-              className={"bg-red-600 px-6 py-2 text-white rounded-lg mt-4"}
-              onClick={() => setIsModalOpen(true)}
-            >
-              Delete Account
-            </button>
-
-            {isModalOpen && (
-              <Modal
-                title="Are you sure you want to delete account?"
-                onYes={handleYes}
-                onClose={handleClose}
-              />
-            )}
+            <h2 className="text-3xl font-extrabold mb-4">Your Favorites</h2>
+            <p>
+              Check your past and upcoming restaurant easily by viewing them
+              here.
+            </p>
           </div>
         </div>
+
+        {loadingFavorites ? (
+          <Loader />
+        ) : favorites?.length === 0 ? (
+          <p className="text-lg text-tn_dark">No favorites to display.</p>
+        ) : (
+          favorites?.slice(0, displayedFavorites).map((favorite, index) => (
+            <div
+              key={`${favorite?.id}-${index}`}
+              className="border rounded-lg p-4 mb-4 shadow-lg flex items-start justify-between flex-wrap relative"
+            >
+              <div className="flex items-start justify-start w-full sm:w-auto mb-2 sm:mb-0">
+                <img
+                  src={
+                    favorite?.profile_image ||
+                    favorite?.galleries[0]?.image ||
+                    fallback
+                  }
+                  className="w-20 h-16 rounded-md"
+                  alt="hotel"
+                />
+                <div className="ml-2">
+                  <p>{favorite?.type}</p>
+                  <Link
+                    to={`/restaurant/${favorite?.id}`}
+                    className="font-bold text-xl capitalize"
+                  >
+                    {favorite?.name}
+                  </Link>
+                </div>
+              </div>
+
+              {/* <div className="flex space-x-2 w-full sm:w-auto sm:mt-0 mt-4">
+                <Link
+                  to={`/restaurant/${booking?.hotel?.id}`}
+                  className="hover:bg-tn_dark_field bg-tn_pink text-white text-lg sm:text-base px-4 py-2 rounded-lg inline-block duration-200 transition-all w-full sm:w-auto text-center"
+                >
+                  Rebook
+                </Link>
+
+                <Button
+                  onClick={() => handleClearBooking(booking?.id)}
+                  padX={"px-2"}
+                  padY={"py-2"}
+                  className={`rounded-lg bg-tn_dark_field text-white hover:bg-tn_pink text-xs sm:text-sm absolute sm:relative top-2 right-2 sm:top-0 sm:right-0 ${
+                    isClearBooking[booking?.id]
+                      ? "opacity-70 cursor-not-allowed"
+                      : ""
+                  }`}
+                  disabled={isClearBooking[booking?.id]}
+                >
+                  {isClearBooking[booking?.id] ? "..." : "X"}
+                </Button>
+              </div> */}
+            </div>
+          ))
+        )}
+
+        {favorites.length >= displayedFavorites && (
+          <LoadMore onLoadMore={handleLoadMoreFav} hasMore={hasMoreFav} />
+        )}
       </div>
-      
     </>
   );
 };
 
-export default Profile;
+export default Bookings;
