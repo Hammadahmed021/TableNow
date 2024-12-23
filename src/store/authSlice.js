@@ -1,12 +1,12 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { Signup, Login as ApiLogin, sendFCMToken } from "../utils/Api";
-import {
-  createUserWithEmailAndPassword,
-  getIdToken,
-  signInWithEmailAndPassword,
-  AuthErrorCodes,
-} from "firebase/auth";
-import { auth } from "../service/firebase";
+// import {
+//   createUserWithEmailAndPassword,
+//   getIdToken,
+//   signInWithEmailAndPassword,
+//   AuthErrorCodes,
+// } from "firebase/auth";
+// import { auth } from "../service/firebase";
 import { getFCMToken } from "../service";
 import { setNotification } from "./notificationSlice";
 import { PushNotifications } from "@capacitor/push-notifications";

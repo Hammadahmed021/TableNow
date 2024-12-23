@@ -1,11 +1,10 @@
 {
-  "appId": "com.example.app",
+  "appId": "com.tablenow.app",
   "appName": "tablenow",
   "webDir": "dist",
   "plugins": {
     "SplashScreen": {
-      "launchShowDuration": 2000,
-      "launchAutoHide": true,
+      "launchAutoHide": false,
       "launchFadeOutDuration": 1000,
       "backgroundColor": "#ffffffff",
       "androidSplashResourceName": "splash",

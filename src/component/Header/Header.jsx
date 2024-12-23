@@ -105,7 +105,7 @@ console.log(currentUser?.profile_image ||
 
 
   return (
-    <header className="border-b-2 relative" style={style}>
+    <header className="border-b-2 relative pt-10" style={style}>
       <div className="container mx-auto">
         {!isDesktop ? (
           <nav className="flex py-4 items-center">
@@ -189,7 +189,7 @@ console.log(currentUser?.profile_image ||
                 // style={{ paddingTop: isApp ? "20px" : "0" }}
               >
                 <div className="relative w-full min-h-screen p-3">
-                  <div className="flex justify-between items-start">
+                  <div className="flex justify-between items-start pt-10">
                     <LuX
                       onClick={() => setToggle((prev) => !prev)}
                       size={24}
