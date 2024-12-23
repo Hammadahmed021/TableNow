@@ -11,6 +11,7 @@
   import { logout } from "./store/authSlice";
   import { PushNotifications } from "@capacitor/push-notifications";
   import { setNotification } from "./store/notificationSlice";
+import { SplashScreen } from "@capacitor/splash-screen";
 
   function App() {
     const location = useLocation();
@@ -53,6 +54,18 @@
 
     //   setupStatusBar();
     // }, [isApp]);
+
+    useEffect(() => {
+      const hideSplashScreen = async () => {
+        await SplashScreen.hide();
+      };
+
+      hideSplashScreen();
+
+      return () => {
+        SplashScreen.hide();
+      };
+    }, []); 
 
     // Back button listener for both iOS and Android
     useEffect(() => {
