@@ -14,7 +14,7 @@ import useMediaQuery from "../hooks/useQuery";
 // const images = [login, signup];
 
 const Signup = () => {
-  const isDesktop = useMediaQuery("(max-width: 1550px)");
+  const isDesktop = useMediaQuery("(min-width: 1024px)");
   const [error, setError] = useState("");
   const dispatch = useDispatch();
   const navigate = useNavigate();
