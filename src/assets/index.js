@@ -12,6 +12,7 @@ export { default as menu} from './Images/menu.png';
 export { default as login} from './Images/login.png';
 export { default as signup} from './Images/signup.png';
 export { default as notfound} from './Images/notfound.jpg';
+export { default as avatar} from './Images/avatar.png';
 
 
 /* Icons */

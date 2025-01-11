@@ -465,7 +465,7 @@ const Bookings = () => {
   return (
     <>
       <div className="container mx-auto p-4">
-        <div className="flex items-start justify-between mb-4 flex-wrap sm:flex-nowrap">
+        <div className="flex items-start justify-between mb-4 flex-wrap sm:flex-nowrap mt-4">
           <div>
             <h2 className="text-3xl font-extrabold mb-4">
               Your Booking History
@@ -625,7 +625,7 @@ const Bookings = () => {
         {loadingFavorites ? (
           <Loader />
         ) : favorites?.length === 0 ? (
-          <p className="text-lg text-tn_dark">No favorites to display.</p>
+          <p className="text-lg text-tn_dark mb-4">No favorites to display.</p>
         ) : (
           favorites?.slice(0, displayedFavorites).map((favorite, index) => (
             <div

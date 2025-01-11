@@ -77,6 +77,9 @@ const Footer = () => {
     );
   };
 
+
+  const getFullYear = new Date().getFullYear()
+
   return (
     <footer>
       <div className="border-t-2 border-b-2 border-tn_light_grey py-16 ">
@@ -171,11 +174,11 @@ const Footer = () => {
         </div>
       </div>
       <div className="footer-bottom py-4 flex justify-between container mx-auto items-center">
-        <p>© 2024 tablenow | All rights Reserved</p>
+        <p>© {getFullYear} Tablenow | All Rights Reserved</p>
         {!isApp && (
           <div className="flex items-center">
             <LuGlobe size={18} />
-            <p className="ml-4">ENG | USD</p>
+            <p className="ml-4">ENG</p>
           </div>
         )}
       </div>

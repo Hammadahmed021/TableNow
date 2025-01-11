@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { useForm } from "react-hook-form";
 import { clearAllBookings } from "../store/bookingSlice";
 import { logout, updateUserData } from "../store/authSlice";
-import { fallback, relatedFallback } from "../assets";
+import { avatar, fallback, relatedFallback } from "../assets";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import {
   Button,
@@ -43,7 +43,7 @@ const Profile = () => {
   const [loadingFavorites, setLoadingFavorites] = useState(true);
   const [displayedBookings, setDisplayedBookings] = useState(4);
   const [displayedFavorites, setDisplayedFavorites] = useState(4);
-  const [imagePreview, setImagePreview] = useState(fallback);
+  const [imagePreview, setImagePreview] = useState(avatar);
   const [selectedFile, setSelectedFile] = useState(null);
   const [fileError, setFileError] = useState("");
   const [showError, setShowError] = useState("");
@@ -267,8 +267,8 @@ const Profile = () => {
         phone: data?.phone,
         ...(profileImageFile &&
           profileImageFile !== currentUser?.profile_image && {
-            profile_image: profileImageFile,
-          }),
+          profile_image: profileImageFile,
+        }),
       };
       // if (profileImageFile != "") {
       //   alert("profileImageFile========>", JSON.stringify(profileImageFile));
@@ -339,7 +339,7 @@ const Profile = () => {
       // dispatch(updateUserData(data));
       setValue("name", data?.name || "");
       setValue("phone", data?.phone || "");
-      setImagePreview(data?.profile_image || fallback);
+      setImagePreview(data?.profile_image || avatar);
     } catch (error) {
       console.error("Error fetching user data:", error);
     }
@@ -441,9 +441,8 @@ const Profile = () => {
     // Format according to the Denmark number format +45 XX XX XX XX
     const match = cleanedValue.match(/^(\d{0,2})(\d{0,2})(\d{0,2})(\d{0,2})$/);
     if (match) {
-      const formatted = `+45 ${match[1] ? `${match[1]}` : ""}${
-        match[2] ? ` ${match[2]}` : ""
-      }${match[3] ? ` ${match[3]}` : ""}${match[4] ? ` ${match[4]}` : ""}`;
+      const formatted = `+45 ${match[1] ? `${match[1]}` : ""}${match[2] ? ` ${match[2]}` : ""
+        }${match[3] ? ` ${match[3]}` : ""}${match[4] ? ` ${match[4]}` : ""}`;
       return formatted.trim();
     }
     return "+45";
@@ -468,11 +467,13 @@ const Profile = () => {
         <div className="flex flex-col md:flex-row items-start justify-between mb-4">
           <div className="w-full md:w-1/2">
             <div className="flex flex-col">
-              <div className="flex items-center overflow-hidden">
+              <h2 className="text-3xl font-black text-tn_dark mt-4 mb-2">
+                Profile picture</h2>
+              <div className="flex items-center overflow-hidden mb-4">
                 <img
                   src={imagePreview}
                   alt="user profile"
-                  className="w-16 h-16 rounded-full"
+                  className="w-16 h-16 rounded-full border shadow-sm"
                 />
                 <div className="ml-4">
                   {isApp ? (
@@ -546,7 +547,7 @@ const Profile = () => {
                     <p className="text-tn_text_grey text-sm">
                       Want to change password?{" "}
                       <span className="underline cursor-pointer" onClick={toggleText}>
-                       {togglePassword ? 'hide' : 'click here'}
+                        {togglePassword ? 'hide' : 'click here'}
                       </span>
                     </p>
                   </span>
@@ -566,7 +567,7 @@ const Profile = () => {
                           type="password"
                           {...register("confirmPassword")}
                           placeholder="Confirm new password"
-                          // disabled={isGmailUser}
+                        // disabled={isGmailUser}
                         />
                       </span>
                       {showError && (
@@ -579,9 +580,8 @@ const Profile = () => {
 
               <Button
                 type="submit"
-                className={`w-full  ${
-                  isSigning ? "opacity-70 cursor-not-allowed" : ""
-                }`}
+                className={`w-full  ${isSigning ? "opacity-70 cursor-not-allowed" : ""
+                  }`}
                 disabled={isSigning}
               >
                 {isSigning ? "Saving..." : "Save changes"}
@@ -618,7 +618,7 @@ const Profile = () => {
           </div>
         </div>
       </div>
-      
+
     </>
   );
 };

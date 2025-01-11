@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Logo, fallback, fb, instagram, twitter, youtube } from "../../assets";
+import { Logo, avatar, fallback, fb, instagram, twitter, youtube } from "../../assets";
 import { Link, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 import {
@@ -134,7 +134,7 @@ const Header = ({ style }) => {
                           currentUser?.profile_image ||
                           userData?.user?.profile_image ||
                           userData?.photo ||
-                          fallback
+                          avatar
                         }
                         alt="user profile"
                         className="w-8 h-8 rounded-full"
