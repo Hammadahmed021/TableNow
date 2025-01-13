@@ -116,14 +116,23 @@ const Profile = () => {
     try {
       const response = await deleteAccount();
       console.log(response, "account deletion response");
-
+  
       if (response) {
-        dispatch(logout()); // Dispatch your logout action
-        showSuccessToast("Your account is deleted.");
+        // Clear localStorage
+        localStorage.clear();
+  
+        // Dispatch logout and clear state
+        dispatch(logout()); 
+  
+        // Show success toast
+        showSuccessToast("Your account has been deleted.");
+  
+        // Redirect to the homepage
+        navigate("/"); 
       }
     } catch (error) {
-      showErrorToast(error.message);
-      throw new Error(error || "unable to delete account");
+      showErrorToast(error.message || "Unable to delete account");
+      throw new Error(error || "Unable to delete account");
     }
   };
 

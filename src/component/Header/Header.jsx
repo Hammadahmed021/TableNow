@@ -61,6 +61,7 @@ const Header = ({ style }) => {
       fetchCurrentUserData();
     }
   }, [token]);
+  
   useEffect(() => {
     if (!token) {
       fetchCurrentUserData();
